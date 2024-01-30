@@ -12,25 +12,60 @@ const getListarFilmes = () => {
     const filmesInfo = catalogo.filmes.filmes
 
     let filmesJSON = {}
-    let filmesArray = []
+    let filmesARRAY = []
 
     filmesInfo.forEach((filme) => {
+        let filmesJSON = {
 
-        let filmeJSON = {
             id: filme.id,
             nome: filme.nome,
-            email: filme.email,
-            senha: filme.senha,
-            telefone: filme.telefone
-      }
+            sinopse: filme.sinopse,
+            duracao: filme.duracao,
+            data_lancamento: filme.data_lancamento,
+            data_relancamento: filme.data_relancamento,
+            foto_capa: filme.foto_capa,
+            valor_unitario: filme.valor_unitario
 
-        filmesArray.push(filmeJSON)
+        }
+
+        filmesARRAY.push(filmesJSON)
 
     })
 
-    filmesJSON.filme = filmesArray
-    filmesJSON.filmes = filmesInfo.length
-
+    filmesJSON.filmes = filmesARRAY
+    filmesJSON.quantidade = filmesARRAY.length
+    
     return filmesJSON
 
+
+}
+
+const getIdFilme = (id) => {
+
+    const filmesInfo = catalogo.filmes.filmes
+
+    let filmeEncontrado = false
+
+    filmesInfo.forEach(filme => {
+
+        if (filme.id === id) {
+            filmeEncontrado = {
+
+                id: filme.id,
+                nome: filme.nome,
+                sinopse: filme.sinopse,
+                data_lancamento: filme.data_lancamento,
+                data_relancamento: filme.data_relancamento,
+                foto_capa: filme.foto_capa,
+                valor_unitario: filme.valor_unitario
+            }
+        }
+    })
+
+    return filmeEncontrado
+}
+
+module.exports = {
+    getListarFilmes,
+    getIdFilme
 }
