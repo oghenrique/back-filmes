@@ -44,11 +44,12 @@ const getIdFilme = (id) => {
 
     const filmesInfo = catalogo.filmes.filmes
 
-    let filmeEncontrado = false
+    let filmeEncontrado = id,
+            situacao = false
 
-    filmesInfo.forEach(filme => {
+    filmesInfo.forEach(( filme) => {
 
-        if (filme.id === id) {
+        if (filme.id == id) {
             filmeEncontrado = {
 
                 id: filme.id,
@@ -59,6 +60,7 @@ const getIdFilme = (id) => {
                 foto_capa: filme.foto_capa,
                 valor_unitario: filme.valor_unitario
             }
+            situacao = true
         }
     })
 
