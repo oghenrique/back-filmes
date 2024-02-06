@@ -5,6 +5,18 @@
  * Versão: 1.0                                                                                 *
 ***********************************************************************************************/
 
+/*Para realizar a integração com Banco de Dados precisamos de uma biblioteca
+ * 
+ * SEQUELIZE ORM (mais aniga)
+ * PRISMA ORM    (mais atualizada)
+ * FASTFY ORM    (mais atualizada)
+ * 
+ * Instalação do PRISMA ORM
+ * 
+ *  npm install prisma --save (Conexão com database)
+ * npm install @prisma/client -- save (executa os scripts SQL no database)
+ * npx prisma init(inicia a utilização do prisma no projeto)
+ */
 
 const express = require('express')
 const cors = require('cors')
@@ -23,6 +35,12 @@ app.use((request, response, next) => {
 
     next()
 })
+
+/*************************** Import dos arquivos internos do projeto***********************/
+
+const controllerFilmes = require('./controller/controller_filme.js')
+
+/******************************************************************************************/
 
 //EndPoints: listar todos os filmes
 app.get('/v1/acme/filmes', cors(), async (request, response, next) => {
@@ -49,6 +67,23 @@ app.get('/v1/acme/filme/:id', cors(), async (request, response, next) => {
         response.json({ erro: "Não foi possivel encontrar um item" })
     }
 
+
+})
+
+//New EndPoint: retorna dados do Banco De Dados
+app.get('/v2/acme/filmes', cors(), async (request, response, next) => {
+
+    //Chama a função para retornar os dados de FIlme
+    let dadosFilmes = await controllerFilmes.getListarFilmes()
+
+    //Validação para retornar os dados ou o erro 404
+    if (dadosFilmes) {
+        response.json(dadosFilmes)
+        response.status(200)
+    } else {
+        response.json({message: 'Nenhum resgistro encontrado'})
+        response.status(404)
+    }
 
 })
 
