@@ -29,7 +29,7 @@ const deleteFilme = async () => {
 //Função para retornar todos os filmes do Banco de Dados
 const selectAllFilmes = async () => {
     //Script SQL para buscar todos os registros do database
-    let sql = 'select * from tbl_filme'
+    let sql = 'select * from tbl_filmes'
 
     //$queryRawUnsafe(sql) ------ Encaminha uma variavel
     //$queryRaw('select * from tbl_filme') ------------- Encaminha direto o script

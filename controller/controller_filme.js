@@ -32,12 +32,16 @@ const getListarFilmes = async () => {
     //Cria a função DAO para retornar os dados do BD
     let dadosFilmes = await filmesDAO.selectAllFilmes()
 
+    
+
     //Validação para criar o JSON de dados
     if (dadosFilmes) {
         //Cria o JSON de retorno de dados
         filmesJSON.filmes = dadosFilmes
         filmesJSON.quantidade = dadosFilmes.length
         filmesJSON.status_code = 200
+
+        return filmesJSON
     } else {
         return false
     }
