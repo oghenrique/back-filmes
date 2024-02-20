@@ -32,7 +32,7 @@ const getListarFilmes = async () => {
     //Cria a função DAO para retornar os dados do BD
     let dadosFilmes = await filmesDAO.selectAllFilmes()
 
-    
+
 
     //Validação para criar o JSON de dados
     if (dadosFilmes) {
@@ -51,6 +51,11 @@ const getListarFilmes = async () => {
 //Função para retornar filtro do filme pelo ID
 const getBuscarFilme = async () => {
 
+    let idFilme = id;
+
+    if (idFilme == '' || idFilme == undefined || isNaN(idFilme)) {
+        return{status: 400, message: 'ID inválido'}        
+    }
 }
 
 module.exports = {
