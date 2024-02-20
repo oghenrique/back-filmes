@@ -35,10 +35,10 @@ const selectAllFilmes = async () => {
     //$queryRaw('select * from tbl_filme') ------------- Encaminha direto o script
 
     //Executa o scriptSQL no DB e guarda o retorno dos dados
-    let rsFilmes = await prisma.$queryRawUnsafe(sql) 
+    let rsFilmes = await prisma.$queryRawUnsafe(sql)
 
     //Validação para retornar os dados ou retornar false
-    if(rsFilmes.length > 0)
+    if (rsFilmes.length > 0)
         return rsFilmes
     else
         return false
@@ -52,10 +52,10 @@ const selectByIdFilme = async (id) => {
 
     let rsFilmes = await prisma.$queryRawUnsafe(sql)
 
-    if(rsFilmes.length > 0)
+    if (rsFilmes.length > 0)
         return rsFilmes
-        else 
-    return false
+    else
+        return false
 
 }
 

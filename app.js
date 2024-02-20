@@ -81,10 +81,22 @@ app.get('/v2/acme/filmes', cors(), async (request, response, next) => {
         response.json(dadosFilmes)
         response.status(200)
     } else {
-        response.json({message: 'Nenhum resgistro encontrado'})
+        response.json({ message: 'Nenhum resgistro encontrado' })
         response.status(404)
     }
 
+})
+
+//EndPoints: listar filmes filtrando pelo id
+app.get('/v2/acme/filme/:id', cors(), async (request, response, next) => {
+
+    //Recebe o ID encaminhando a requisição
+    let idFilme = request.params.id
+
+    let dadosFilme = await controllerFilmes.getBuscarFilme(idFilme)
+
+    response.status(dadosFilme.status_code)
+    response.json(dadosFilme)
 })
 
 app.listen(8080, function () {
