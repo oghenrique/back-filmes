@@ -39,15 +39,19 @@ const getListarFilmes = async () => {
 
     //Validação para criar o JSON de dados
     if (dadosFilmes) {
-        //Cria o JSON de retorno de dados
-        filmesJSON.filmes = dadosFilmes
-        filmesJSON.quantidade = dadosFilmes.length
-        filmesJSON.status_code = 200
+        if (dadosFilmes.length > 0) {
+            filmesJSON.filmes = dadosFilmes
+            filmesJSON.quantidade = dadosFilmes.length
+            filmesJSON.status_code = 200
 
-        return filmesJSON
+            return filmesJSON
+        } else {
+            return message.ERROR_NOT_FOUND
+        }
     } else {
-        return false
+        return message.ERROR_INTERNAL_SERVER_DB
     }
+
 
 }
 
