@@ -68,16 +68,22 @@ const getBuscarFilme = async (id) => {
 
         //Validação para verificar se o DAO retornou dados
         if (dadosFilme) {
-            //Cria o JSON de retorno de dados
-            filmeJSON.filme = dadosFilme
-            filmeJSON.status_code = 200
 
-            return filmeJSON
-        } else{
-            return message.ERROR_NOT_FOUND
+            if (dadosFilme.length > 0) {
+                //Cria o JSON de retorno de dados
+                filmeJSON.filme = dadosFilme
+                filmeJSON.status_code = 200
+
+                return filmeJSON
+            } else {
+                return message.ERROR_NOT_FOUND
+            }
+        } else {
+            return message.ERROR_INTERNAL_SERVER_DB
         }
     }
 }
+
 
 module.exports = {
     setNovoFilme,

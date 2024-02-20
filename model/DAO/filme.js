@@ -48,14 +48,17 @@ const selectAllFilmes = async () => {
 //Função para buscar um filme no Banco de Dados filtrando pelo ID
 const selectByIdFilme = async (id) => {
 
-    let sql = `select * from tbl_filmes where id = ${id}`
+    try {
+        let sql = `select * from tbl_filmes where id = ${id}`
 
-    let rsFilmes = await prisma.$queryRawUnsafe(sql)
+        let rsFilmes = await prisma.$queryRawUnsafe(sql)
 
-    if (rsFilmes.length > 0)
         return rsFilmes
-    else
+    
+    } catch (error) {
         return false
+    }
+
 
 }
 
