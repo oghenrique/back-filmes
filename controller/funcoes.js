@@ -67,7 +67,37 @@ const getIdFilme = (id) => {
     return filmeEncontrado
 }
 
+const getNomeFilme = (nome) =>{
+    
+    const filmesInfo = catalogo.filmes.filmes
+
+    let filmeEncontrado = nome,
+            situacao = false
+
+    filmesInfo.forEach((filme) => {
+
+        if (filme.nome == nome) {
+            filmeEncontrado = {
+
+                id: filme.id,
+                nome: filme.nome,
+                sinopse: filme.sinopse,
+                data_lancamento: filme.data_lancamento,
+                data_relancamento: filme.data_relancamento,
+                foto_capa: filme.foto_capa,
+                valor_unitario: filme.valor_unitario
+            }
+            situacao = true
+        }
+    })
+
+    return filmeEncontrado
+
+
+}
+
 module.exports = {
     getListarFilmes,
-    getIdFilme
+    getIdFilme, 
+    getNomeFilme
 }

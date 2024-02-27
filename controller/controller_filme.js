@@ -88,11 +88,42 @@ const getBuscarFilme = async (id) => {
     }
 }
 
+//Função para retornar filtro do filme pelo nome
+const getBuscarNomeFilme = async (nome) => {
+
+    let nomeFilme = nome
+
+    let filmeJSON = {}
+
+    if (nomeFilme == '' || nomeFilme == undefined ) {
+        return message.ERROR_NOT_FOUND
+    } else {
+
+        let dadosFilme = await filmesDAO.selectByNomeFilme(nomeFilme)
+
+        if (dadosFilme) {
+            
+            if (dadosFilme.length > 0) {
+               
+                filmeJSON.filme = dadosFilme
+                filmeJSON.status_code = 200
+
+                return filmeJSON
+            } else {
+                return message.ERROR_NOT_FOUND
+            }
+        } else {
+            return message.ERROR_INTERNAL_SERVER_DB
+        }
+    }
+}
+
 
 module.exports = {
     setNovoFilme,
     setAtualizarFilme,
     setExcluirFilme,
     getListarFilmes,
-    getBuscarFilme
+    getBuscarFilme,
+    getBuscarNomeFilme
 }

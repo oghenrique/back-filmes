@@ -87,8 +87,21 @@ app.get('/v2/acme/filmes', cors(), async (request, response, next) => {
 
 })
 
+//EndPoints: listar filme pelo nome usando Query
+app.get('/v3/acme/filtro/filme', cors(), async (request, response, next) => {
+
+    let nomeFilme = request.query.nomefilme
+    
+    let dadosFilme = await controllerFilmes.getBuscarNomeFilme(nomeFilme)
+
+    response.status(dadosFilme.status_code)
+    response.json(dadosFilme)
+
+})
+
 //EndPoints: listar filmes filtrando pelo id
 app.get('/v2/acme/filme/:id', cors(), async (request, response, next) => {
+    console.log('teste')
 
     //Recebe o ID encaminhando a requisição
     let idFilme = request.params.id
@@ -102,3 +115,4 @@ app.get('/v2/acme/filme/:id', cors(), async (request, response, next) => {
 app.listen(8080, function () {
     console.log('servidor rodando na porta 8080')
 })
+
