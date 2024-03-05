@@ -56,7 +56,7 @@ const insertFilme = async (dadosFilme) => {
                                                        '${dadosFilme.sinopse}',
                                                        '${dadosFilme.duracao}',
                                                        '${dadosFilme.data_lancamento}',
-                                                       '${dadosFilme.data_relancamento}'
+                                                       '${dadosFilme.data_relancamento}',
                                                        '${dadosFilme.foto_capa}',
                                                         '${dadosFilme.valor_unitario}'
                                             )`
@@ -76,6 +76,7 @@ const insertFilme = async (dadosFilme) => {
         //Cria a variável SQL
         
     } catch(error){
+        
         return false
     }
 

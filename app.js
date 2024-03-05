@@ -13,7 +13,7 @@
  * 
  * Instalação do PRISMA ORM
  * 
- *  npm install prisma --save (Conexão com database)
+ * npm install prisma --save (Conexão com database)
  * npm install @prisma/client -- save (executa os scripts SQL no database)
  * npx prisma init(inicia a utilização do prisma no projeto)
  */
@@ -29,12 +29,15 @@ const app = express()
 app.use((request, response, next) => {
 
     response.header('Access-Control-Allow-Origin', '*')
-    response.header('Access-Control-Allow-Methods', 'GET')
+    response.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
 
     app.use(cors())
 
     next()
 })
+
+//Cria um objeto para definir o tipo de dados que irá chegar no BODY (JSON)
+const bodyParserJSON = bodyParser.json()
 
 /*************************** Import dos arquivos internos do projeto***********************/
 
@@ -88,7 +91,7 @@ app.get('/v2/acme/filmes', cors(), async (request, response, next) => {
 })
 
 //EndPoints: listar filme pelo nome usando Query
-app.get('/v3/acme/filtro/filme', cors(), async (request, response, next) => {
+app.get('/v2/acme/filtro/filme', cors(), async (request, response, next) => {
 
     let nomeFilme = request.query.nomefilme
     
@@ -110,6 +113,20 @@ app.get('/v2/acme/filme/:id', cors(), async (request, response, next) => {
 
     response.status(dadosFilme.status_code)
     response.json(dadosFilme)
+})
+
+
+app.post('/v2/acmefilmes/filme',  cors(), bodyParserJSON, async (request, response, next) =>{
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerFilmes.setInserirNovoFilme(dadosBody)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
 })
 
 app.listen(8080, function () {

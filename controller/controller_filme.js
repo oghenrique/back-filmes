@@ -14,6 +14,9 @@ const filmesDAO = require('../model/DAO/filme.js')
 //Função para inserir um novo filme
 const setInserirNovoFilme = async (dadosFilme) => {
 
+    let statusValidated = false
+    let novoFilmeJSON = {}
+
     if (dadosFilme.nome == '' || dadosFilme.nome == undefined || dadosFilme.nome == null, dadosFilme.nome.length > 80 ||
         dadosFilme.sinopse == '' || dadosFilme.sinopse == undefined || dadosFilme.sinopse == null, dadosFilme.sinopse.length > 65000 ||
         dadosFilme.duracao == '' || dadosFilme.duracao == undefined || dadosFilme.duracao == null, dadosFilme.duracao.length > 8 ||
@@ -34,12 +37,32 @@ const setInserirNovoFilme = async (dadosFilme) => {
             if (dadosFilme.data_relancamento.length != 10) {
                 return message.ERROR_REQUIRED_FIELDS//400
             } else {
-
+                statusValidated = true //validação para liberar a inserção dos dados no DAO
             }
 
         } else {
-            
+            statusValidated = true  //validação para liberar a inserção dos dados no DAO
         }
+
+        //se a variável for verdadeira, podemos encaminhar os dados para o DAO
+        if(statusValidated){
+
+            //encaminha os dados para o DAO inserir
+            let novoFilme = await filmesDAO.insertFilme(dadosFilme)
+
+            if(novoFilme){
+                //Cria o JSON de retorno com informações de requisição e os dados novos
+                novoFilmeJSON.status = message.SUCESS_CREATED_ITEM.status
+                novoFilmeJSON.status_code = message.SUCESS_CREATED_ITEM.status_code
+                novoFilmeJSON.message = message.SUCESS_CREATED_ITEM.message
+                novoFilmeJSON.filme = dadosFilme
+
+                return novoFilmeJSON //201
+
+            } else {
+                return message.ERROR_INTERNAL_SERVER_DB //500
+            }
+        } 
 
     }
 
