@@ -12,7 +12,72 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 //Função para inserir um filme no Banco de Dados
-const insertFilme = async () => {
+const insertFilme = async (dadosFilme) => {
+
+    try{
+        let sql
+    
+        //Validação para verificar se a data de relançamento é vazia, pois devemos ajustar o script SQL para o BD --- > 
+        //OBS: essa condição é provisória, já que iremos tratar no BD com uma procedure
+       
+        if(dadosFilme.data_relancamento == null || 
+           dadosFilme.data_relancamento == undefined || 
+           dadosFilme.data_relancamento == '' 
+           ){
+           
+            sql = `insert into tbl_filme( nome,
+                                          sinopse,
+                                          duracao,
+                                          data_lancamento,
+                                          data_relancamento,
+                                          foto_capa,
+                                          valor_unitario
+                                          ) values (
+                                                    '${dadosFilme.nome}',
+                                                    '${dadosFilme.sinopse}',
+                                                    '${dadosFilme.duracao}',
+                                                    '${dadosFilme.data_lancamento}',
+                                                     null,
+                                                    '${dadosFilme.foto_capa}',
+                                                    '${dadosFilme.valor_unitario}'
+                                                    )`
+           
+            } else{
+    
+                sql = `insert into tbl_filme( nome,
+                                              sinopse,
+                                              duracao,
+                                              data_lancamento,
+                                              data_relancamento,
+                                              foto_capa,
+                                              valor_unitario
+                                             ) values (
+                                                       '${dadosFilme.nome}',
+                                                       '${dadosFilme.sinopse}',
+                                                       '${dadosFilme.duracao}',
+                                                       '${dadosFilme.data_lancamento}',
+                                                       '${dadosFilme.data_relancamento}'
+                                                       '${dadosFilme.foto_capa}',
+                                                        '${dadosFilme.valor_unitario}'
+                                            )`
+    
+           }
+    
+           //$executeRawUnsafe() - serve para executar scripts sql que não retornam valores (insert, update e delete)
+           //$queryRawUnsafe() - serve para executar scripts sql que RETORNAM dados do BD (select)
+           let result = await prisma.$executeRawUnsafe(sql)
+    
+           if(result)
+            return true
+           
+           else
+            return false
+    
+        //Cria a variável SQL
+        
+    } catch(error){
+        return false
+    }
 
 }
 
@@ -29,7 +94,7 @@ const deleteFilme = async () => {
 //Função para retornar todos os filmes do Banco de Dados
 const selectAllFilmes = async () => {
     //Script SQL para buscar todos os registros do database
-    let sql = 'select * from tbl_filmes'
+    let sql = 'select * from tbl_filme'
 
     //$queryRawUnsafe(sql) ------ Encaminha uma variavel
     //$queryRaw('select * from tbl_filme') ------------- Encaminha direto o script
@@ -49,7 +114,7 @@ const selectAllFilmes = async () => {
 const selectByIdFilme = async (id) => {
 
     try {
-        let sql = `select * from tbl_filmes where id = ${id}`
+        let sql = `select * from tbl_filme where id = ${id}`
 
         let rsFilmes = await prisma.$queryRawUnsafe(sql)
 
@@ -64,7 +129,7 @@ const selectByIdFilme = async (id) => {
 
 const selectByNomeFilme = async (nome) => {
     try {
-        let sql = `select * from tbl_filmes where nome like '%${nome}%'`
+        let sql = `select * from tbl_filme where nome like '%${nome}%'`
 
         let rsFilmes = await prisma.$queryRawUnsafe(sql)
 
@@ -74,6 +139,8 @@ const selectByNomeFilme = async (nome) => {
        return false 
     }
 }
+
+
 
 module.exports = {
     insertFilme,
