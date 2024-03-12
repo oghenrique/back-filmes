@@ -67,7 +67,7 @@ const getIdFilme = (id) => {
     return filmeEncontrado
 }
 
-const getNomeFilme = (nome) =>{
+const getNomeFilme = (nome) => {
     
     const filmesInfo = catalogo.filmes.filmes
 
@@ -92,7 +92,6 @@ const getNomeFilme = (nome) =>{
     })
 
     return filmeEncontrado
-
 
 }
 

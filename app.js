@@ -118,11 +118,13 @@ app.get('/v2/acme/filme/:id', cors(), async (request, response, next) => {
 
 app.post('/v2/acmefilmes/filme',  cors(), bodyParserJSON, async (request, response, next) =>{
 
+    let contentType = request.headers['content-type']
+
     //Recebe os dados encaminhados no Body da requisição
     let dadosBody = request.body
 
     //Encaminha os dados para cotroller inserir no BD
-    let resultDados = await controllerFilmes.setInserirNovoFilme(dadosBody)
+    let resultDados = await controllerFilmes.setInserirNovoFilme(dadosBody, contentType)
 
     response.status(resultDados.status_code)
     response.json(resultDados)
