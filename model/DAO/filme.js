@@ -81,20 +81,21 @@ const insertFilme = async (dadosFilme) => {
 }
 
 const selectId = async () => {
-
-
     try {
         let sql = 'select CAST(id as DECIMAL)as id from tbl_filme order by id desc limit 1'
 
         let rsFilmes = await prisma.$queryRawUnsafe(sql)
 
-        return rsFilmes
-
+        if (rsFilmes) {
+            return rsFilmes[0].id // Corrigindo para retornar o ID corretamente
+        } else {
+            return false
+        }
     } catch (error) {
         return false
     }
-
 }
+
 
 //Função para atualizar um filme no Banco de Dados
 const updateFilme = async () => {

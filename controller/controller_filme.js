@@ -34,7 +34,9 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
                 //Validação para verificar se a data de relancameno tem um conteúdo válido
                 if (dadosFilme.data_relancamento != '' &&
                     dadosFilme.data_relancamento != null &&
-                    dadosFilme.data_relancamento != undefined) {
+                    dadosFilme.data_relancamento != undefined
+
+                    ){
                     //Verifica a qtde de caracter
                     if (dadosFilme.data_relancamento.length != 10) {
                         return message.ERROR_REQUIRED_FIELDS//400
@@ -45,7 +47,7 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
                 } else {
                     statusValidated = true  //validação para liberar a inserção dos dados no DAO
                 }
-
+            
                 //se a variável for verdadeira, podemos encaminhar os dados para o DAO
                 if (statusValidated) {
 
@@ -54,13 +56,13 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
 
                     if (novoFilme) {
 
-                        let id = await filmesDAO.insertFilme()
+                        let id = await filmesDAO.selectId()
 
                         //Cria o JSON de retorno com informações de requisição e os dados novos
                         novoFilmeJSON.status = message.SUCESS_CREATED_ITEM.status
                         novoFilmeJSON.status_code = message.SUCESS_CREATED_ITEM.status_code
                         novoFilmeJSON.message = message.SUCESS_CREATED_ITEM.message
-                        novoFilmeJSON.id = id
+                        novoFilmeJSON.id = parseInt(id)
                         novoFilmeJSON.filme = dadosFilme
 
                         return novoFilmeJSON //201

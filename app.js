@@ -133,5 +133,6 @@ app.post('/v2/acmefilmes/filme',  cors(), bodyParserJSON, async (request, respon
 
 app.listen(8080, function () {
     console.log('servidor rodando na porta 8080')
+
 })
 
