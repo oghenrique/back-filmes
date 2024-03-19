@@ -125,15 +125,16 @@ const setAtualizarFilme = async (id, dadosFilme, contentType) => {
                     //encaminha os dados para o DAO inserir
                     let filmeAtualizado = await filmesDAO.updateFilme(id, dadosFilme)
 
-                    dadosFilme.id = id
-
 
                     if (filmeAtualizado) {
+
+                        let id = await filmesDAO.updateFilme()
 
                         //Cria o JSON de retorno com informações de requisição e os dados novos
                         updateFilmeJSON.status = message.SUCESS_UPDATE_ITEM.status
                         updateFilmeJSON.status_code = message.SUCESS_UPDATE_ITEM.status_code
                         updateFilmeJSON.message = message.SUCESS_UPDATE_ITEM.message
+                        updateFilmeJSON.id = id
                         updateFilmeJSON.filme = dadosFilme
 
                         return updateFilmeJSON //201
