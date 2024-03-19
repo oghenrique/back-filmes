@@ -42,6 +42,7 @@ const bodyParserJSON = bodyParser.json()
 /*************************** Import dos arquivos internos do projeto***********************/
 
 const controllerFilmes = require('./controller/controller_filme.js')
+const { filmes } = require('./model/filmes.js')
 
 /******************************************************************************************/
 
@@ -74,7 +75,7 @@ app.get('/v1/acme/filme/:id', cors(), async (request, response, next) => {
 })
 
 //New EndPoint: retorna dados do Banco De Dados
-app.get('/v2/acme/filmes', cors(), async (request, response, next) => {
+app.get('/v2/acmefilmes/filmes', cors(), async (request, response, next) => {
 
     //Chama a função para retornar os dados de FIlme
     let dadosFilmes = await controllerFilmes.getListarFilmes()
@@ -91,7 +92,7 @@ app.get('/v2/acme/filmes', cors(), async (request, response, next) => {
 })
 
 //EndPoints: listar filme pelo nome usando Query
-app.get('/v2/acme/filtro/filme', cors(), async (request, response, next) => {
+app.get('/v2/acmefilmes/filtro/filme', cors(), async (request, response, next) => {
 
     let nomeFilme = request.query.nomefilme
     
@@ -103,9 +104,8 @@ app.get('/v2/acme/filtro/filme', cors(), async (request, response, next) => {
 })
 
 //EndPoints: listar filmes filtrando pelo id
-app.get('/v2/acme/filme/:id', cors(), async (request, response, next) => {
-    console.log('teste')
-
+app.get('/v2/acmefilmes/filme/:id', cors(), async (request, response, next) => {
+  
     //Recebe o ID encaminhando a requisição
     let idFilme = request.params.id
 
@@ -125,6 +125,32 @@ app.post('/v2/acmefilmes/filme',  cors(), bodyParserJSON, async (request, respon
 
     //Encaminha os dados para cotroller inserir no BD
     let resultDados = await controllerFilmes.setInserirNovoFilme(dadosBody, contentType)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
+app.delete('/v2/acmefilmes/filme/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+   
+    let idFilme = request.params.id
+    let dadosFilme = await controllerFilmes.setExcluirFilme(idFilme)
+
+    response.status(dadosFilme.status_code)
+    response.json(dadosFilme)
+})
+
+app.put ('/v2/acmefilmes/filme/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+
+    let idFilme = request.params.id
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerFilmes.setAtualizarFilme(dadosBody, contentType, idFilme)
 
     response.status(resultDados.status_code)
     response.json(resultDados)

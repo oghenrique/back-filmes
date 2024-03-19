@@ -98,31 +98,99 @@ const selectId = async () => {
 
 
 //Função para atualizar um filme no Banco de Dados
-const updateFilme = async () => {
+const updateFilme = async (idFilme, dadosFilme) => {
+
+    let sql
+
+    try {
+
+        //Validação para verificar se a data de relançamento é vazia, pois devemos ajustar o script SQL para o BD --- > 
+        //OBS: essa condição é provisória, já que iremos tratar no BD com uma procedure
+
+        if (dadosFilme.data_relancamento == null ||
+            dadosFilme.data_relancamento == undefined ||
+            dadosFilme.data_relancamento == ''
+        ) {
+
+            sql = `update tbl_filme set 
+                                                nome = '${dadosFilme.nome}',
+                                                sinopse =  '${dadosFilme.sinopse}',
+                                                duracao = '${dadosFilme.duracao}',
+                                                data_lancamento = '${dadosFilme.data_lancamento}',
+                                                foto_capa = '${dadosFilme.foto_capa}',
+                                                valor_unitario = '${dadosFilme.valor_unitario}'
+                                                where id = ${idFilme}`
+
+        } else {
+
+            sql = `update tbl_filme set
+                                                   nome = '${dadosFilme.nome}',
+                                                   sinopse =  '${dadosFilme.sinopse}',
+                                                   duracao = '${dadosFilme.duracao}',
+                                                   data_lancamento = '${dadosFilme.data_lancamento}',
+                                                   data_relancamento = '${dadosFilme.data_relancamento}',
+                                                   foto_capa = '${dadosFilme.foto_capa}',
+                                                   valor_unitario = '${dadosFilme.valor_unitario}'
+                    where id = ${idFilme}`
+
+        }
+
+        console.log(sql)
+        //$executeRawUnsafe() - serve para executar scripts sql que não retornam valores (insert, update e delete)
+        //$queryRawUnsafe() - serve para executar scripts sql que RETORNAM dados do BD (select)
+        let result = await prisma.$executeRawUnsafe(sql)
+
+        // if (result)
+        return result
+
+        // else
+        //     return false
+
+        //Cria a variável SQL
+
+    } catch (error) {
+
+        return false
+    }
 
 }
 
 //Função para deletar um filme no Banco de Dados
-const deleteFilme = async () => {
+const deleteFilme = async (id) => {
+
+    try {
+        let sql = `delete from tbl_filme where id = ${id}`
+
+        let rsFilmes = await prisma.$queryRawUnsafe(sql)
+
+        return rsFilmes
+
+    } catch (error) {
+        return false
+    }
 
 }
 
 //Função para retornar todos os filmes do Banco de Dados
 const selectAllFilmes = async () => {
-    //Script SQL para buscar todos os registros do database
-    let sql = 'select * from tbl_filme'
 
-    //$queryRawUnsafe(sql) ------ Encaminha uma variavel
-    //$queryRaw('select * from tbl_filme') ------------- Encaminha direto o script
+    try {
+        //Script SQL para buscar todos os registros do database
+        let sql = 'select * from tbl_filme'
 
-    //Executa o scriptSQL no DB e guarda o retorno dos dados
-    let rsFilmes = await prisma.$queryRawUnsafe(sql)
+        //$queryRawUnsafe(sql) ------ Encaminha uma variavel
+        //$queryRaw('select * from tbl_filme') ------------- Encaminha direto o script
 
-    //Validação para retornar os dados ou retornar false
-    if (rsFilmes.length > 0)
+        //Executa o scriptSQL no DB e guarda o retorno dos dados
+        let rsFilmes = await prisma.$queryRawUnsafe(sql)
+
         return rsFilmes
-    else
+
+    } catch (error) {
+
         return false
+
+    }
 
 }
 
