@@ -17,13 +17,17 @@ const ERROR_CONTENT_TYPE= {status: false, status_code: 415, message: 'O content-
 
 /************************ MENSAGENS DE SUCESSO DO PROJETO ************************/
 const SUCESS_CREATED_ITEM = {status: true, status_code: 201, message: 'O item foi criado com sucesso no banco de dados!'}
+const SUCESS_DELETE_ITEM = {status: true, status_code: 200, message: 'O item foi deletado com sucesso no banco de dados!'}
+const SUCESS_UPDATE_ITEM = {status: true, status_code: 200, message: 'O item foi atualizado com sucesso no banco de dados!'}
 
 module.exports = {
-    ERROR_CONTENT_TYPE,
-    ERROR_REQUIRED_FIELDS,
     ERROR_INVALID_ID,
+    ERROR_REQUIRED_FIELDS,
     ERROR_NOT_FOUND,
     ERROR_INTERNAL_SERVER_DB,
     ERROR_INTERNAL_SERVER,
-    SUCESS_CREATED_ITEM
+    ERROR_CONTENT_TYPE,
+    SUCESS_CREATED_ITEM,
+    SUCESS_DELETE_ITEM,
+    SUCESS_UPDATE_ITEM
 }

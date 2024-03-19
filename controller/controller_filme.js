@@ -76,7 +76,7 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
             return message.ERROR_CONTENT_TYPE // 415
         }
 
-    } catch(error){
+    } catch (error) {
         return message.ERROR_INTERNAL_SERVER //500 erro na camada da controller
     }
 
@@ -90,7 +90,36 @@ const setAtualizarFilme = async () => {
 }
 
 //Função para excluir um Filme existente
-const setExcluirFilme = async () => {
+const setExcluirFilme = async (id) => {
+
+    try {
+
+        let idFilme = id
+
+        let validaFilme = await getBuscarFilme(idFilme)
+
+        let dadosFilme = await filmesDAO.deleteFilme(idFilme)
+
+        if (idFilme == '' || idFilme == undefined || isNaN(idFilme)) {
+
+            return message.ERROR_INVALID_ID //400
+
+        } else if(validaFilme.status == false){
+            return message.ERROR_NOT_FOUND
+
+        } else {
+            
+            if(dadosFilme)
+                return message.SUCESS_DELETE_ITEM // 200
+            else
+                return message.ERROR_INTERNAL_SERVER_DB
+
+        }
+
+
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER
+    }
 
 }
 
