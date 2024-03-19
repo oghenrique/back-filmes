@@ -85,7 +85,73 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
 
 
 //Função para atualizar um filme existente
-const setAtualizarFilme = async () => {
+const setAtualizarFilme = async (id, dadosFilme, contentType) => {
+
+    try {
+        if (String(contentType).toLowerCase() == 'application/json') {
+            let statusValidated = false
+            let updateFilmeJSON = {}
+
+            if (dadosFilme.nome == '' || dadosFilme.nome == undefined || dadosFilme.nome == null || dadosFilme.nome.length > 80 ||
+                dadosFilme.sinopse == '' || dadosFilme.sinopse == undefined || dadosFilme.nome == null || dadosFilme.sinopse > 65000 ||
+                dadosFilme.duracao == '' || dadosFilme.duracao == undefined || dadosFilme.duracao == null || dadosFilme.duracao > 9 ||
+                dadosFilme.data_lancamento == '' || dadosFilme.data_lancamento == undefined || dadosFilme.data_lancamento == null || dadosFilme.data_lancamento.length != 10 ||
+                dadosFilme.foto_capa == '' || dadosFilme.foto_capa == undefined || dadosFilme.foto_capa == null || dadosFilme.foto_capa.length > 200 ||
+                dadosFilme.valor_unitario.length > 8 || isNaN(dadosFilme.valor_unitario)
+
+            ) {
+                return message.ERROR_REQUIRED_FIELDS//400
+
+            } else {
+
+                //Validação para verificar se a data de relancameno tem um conteúdo válido
+                if (dadosFilme.data_relancamento != '' &&
+                    dadosFilme.data_relancamento != null &&
+                    dadosFilme.data_relancamento != undefined) {
+                    //Verifica a qtde de caracter
+                    if (dadosFilme.data_relancamento.length != 10) {
+                        return message.ERROR_REQUIRED_FIELDS//400
+                    } else {
+                        statusValidated = true //validação para liberar a inserção dos dados no DAO
+                    }
+
+                } else {
+                    statusValidated = true  //validação para liberar a inserção dos dados no DAO
+                }
+
+                //se a variável for verdadeira, podemos encaminhar os dados para o DAO
+                if (statusValidated) {
+
+                    //encaminha os dados para o DAO inserir
+                    let filmeAtualizado = await filmesDAO.updateFilme(id, dadosFilme)
+
+                    dadosFilme.id = id
+
+
+                    if (filmeAtualizado) {
+
+                        //Cria o JSON de retorno com informações de requisição e os dados novos
+                        updateFilmeJSON.status = message.SUCESS_UPDATE_ITEM.status
+                        updateFilmeJSON.status_code = message.SUCESS_UPDATE_ITEM.status_code
+                        updateFilmeJSON.message = message.SUCESS_UPDATE_ITEM.message
+                        updateFilmeJSON.filme = dadosFilme
+
+                        return updateFilmeJSON //201
+
+                    } else {
+                        return message.ERROR_INTERNAL_SERVER_DB //500
+                    }
+                }
+
+            }
+
+        } else {
+            return message.ERROR_CONTENT_TYPE // 415
+        }
+
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER //500 erro na camada da controller
+    }
 
 }
 

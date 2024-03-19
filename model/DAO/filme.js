@@ -97,7 +97,59 @@ const selectId = async () => {
 }
 
 //Função para atualizar um filme no Banco de Dados
-const updateFilme = async () => {
+const updateFilme = async (dadosFilme, idFilme) => {
+
+    let sql
+
+    try {
+
+        //Validação para verificar se a data de relançamento é vazia, pois devemos ajustar o script SQL para o BD --- > 
+        //OBS: essa condição é provisória, já que iremos tratar no BD com uma procedure
+
+        if (dadosFilme.data_relancamento == null ||
+            dadosFilme.data_relancamento == undefined ||
+            dadosFilme.data_relancamento == ''
+        ) {
+
+            sql = `update tbl_filme set 
+                                                '${dadosFilme.nome}',
+                                                '${dadosFilme.sinopse}',
+                                                '${dadosFilme.duracao}',
+                                                '${dadosFilme.data_lancamento}',
+                                                '${dadosFilme.foto_capa}',
+                                                '${dadosFilme.valor_unitario}'
+                    where id = ${idFilme}`
+
+        } else {
+
+            sql = `update tbl_filme set
+                                                   '${dadosFilme.nome}',
+                                                   '${dadosFilme.sinopse}',
+                                                   '${dadosFilme.duracao}',
+                                                   '${dadosFilme.data_lancamento}',
+                                                   '${dadosFilme.data_relancamento}',
+                                                   '${dadosFilme.foto_capa}',
+                                                   '${dadosFilme.valor_unitario}'
+                    where id = ${idFilme}`
+
+        }
+
+        //$executeRawUnsafe() - serve para executar scripts sql que não retornam valores (insert, update e delete)
+        //$queryRawUnsafe() - serve para executar scripts sql que RETORNAM dados do BD (select)
+        let result = await prisma.$executeRawUnsafe(sql)
+
+        if (result)
+            return true
+
+        else
+            return false
+
+        //Cria a variável SQL
+
+    } catch (error) {
+
+        return false
+    }
 
 }
 
