@@ -85,8 +85,8 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
 
 
 //Função para atualizar um filme existente
-const setAtualizarFilme = async (id, dadosFilme, contentType) => {
-
+const setAtualizarFilme = async (dadosFilme, contentType, id) => {
+console.log(contentType)
     try {
         if (String(contentType).toLowerCase() == 'application/json') {
             let statusValidated = false
@@ -140,6 +140,7 @@ const setAtualizarFilme = async (id, dadosFilme, contentType) => {
                         return updateFilmeJSON //201
 
                     } else {
+                        console.log(filmeAtualizado)
                         return message.ERROR_INTERNAL_SERVER_DB //500
                     }
                 }
