@@ -134,8 +134,6 @@ const updateFilme = async (idFilme, dadosFilme) => {
                     where id = ${idFilme}`
 
         }
-
-        console.log(sql)
         //$executeRawUnsafe() - serve para executar scripts sql que não retornam valores (insert, update e delete)
         //$queryRawUnsafe() - serve para executar scripts sql que RETORNAM dados do BD (select)
         let result = await prisma.$executeRawUnsafe(sql)

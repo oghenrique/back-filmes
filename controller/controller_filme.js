@@ -88,7 +88,6 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
 
 //Função para atualizar um filme existente
 const setAtualizarFilme = async (dadosFilme, contentType, id) => {
-console.log(contentType)
     try {
         if (String(contentType).toLowerCase() == 'application/json') {
             let statusValidated = false
@@ -127,23 +126,20 @@ console.log(contentType)
                     //encaminha os dados para o DAO inserir
                     let filmeAtualizado = await filmesDAO.updateFilme(id, dadosFilme)
 
-
                     if (filmeAtualizado) {
-
-                        let id = await filmesDAO.updateFilme()
-
-                        //Cria o JSON de retorno com informações de requisição e os dados novos
+                        let updatedFilm = await filmesDAO.selectByIdFilme(id) // Recupera o filme atualizado do banco de dados
+                        let updatedId = updatedFilm[0].id // Extrai o id do filme atualizado
+                    
+                        // Constrói o JSON de resposta com o id atualizado
                         updateFilmeJSON.status = message.SUCESS_UPDATE_ITEM.status
                         updateFilmeJSON.status_code = message.SUCESS_UPDATE_ITEM.status_code
                         updateFilmeJSON.message = message.SUCESS_UPDATE_ITEM.message
-                        updateFilmeJSON.id = id
+                        updateFilmeJSON.id = updatedId // Usa o id atualizado aqui
                         updateFilmeJSON.filme = dadosFilme
-
-                        return updateFilmeJSON //201
-
+                    
+                        return updateFilmeJSON // Retorna a resposta JSON atualizada
                     } else {
-                        console.log(filmeAtualizado)
-                        return message.ERROR_INTERNAL_SERVER_DB //500
+                        return message.ERROR_INTERNAL_SERVER_DB // 500
                     }
                 }
 
