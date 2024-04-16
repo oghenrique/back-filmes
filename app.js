@@ -157,6 +157,24 @@ app.put ('/v2/acmefilmes/filme/:id',  cors(), bodyParserJSON, async (request, re
 
 })
 
+app.get('/v2/acmefilmes/atores', cors(), async (request, response, next) => {
+
+    //Chama a função para retornar os dados de FIlme
+    let dadosAtores = await controllerFilmes.getListarAtores()
+
+    //Validação para retornar os dados ou o erro 404
+    if (dadosAtores) {
+        response.json(dadosAtores)
+        response.status(200)
+    } else {
+        response.json({ message: 'Nenhum resgistro encontrado' })
+        response.status(404)
+    }
+
+})
+
+
+
 app.listen(8080, function () {
     console.log('servidor rodando na porta 8080')
 

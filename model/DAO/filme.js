@@ -1,5 +1,5 @@
 /**********************************************************************************************************
- * Objetivo: Arquivo responsável por realizar CRUD no Banco de Dados MySQL                                *
+ * Objetivo: Arquivo responsável por realizar CRUD no Banco de Dados MySQL de filmes                      *
  * Data: 30/01/2024                                                                                       *
  * Autor: Gustavo Henrique                                                                                *
  * 1.0                                                                                                    *
