@@ -42,6 +42,10 @@ const bodyParserJSON = bodyParser.json()
 /*************************** Import dos arquivos internos do projeto***********************/
 
 const controllerFilmes = require('./controller/controller_filme.js')
+const controllerAtores = require('./controller/controller_ator.js')
+const controllerDiretores = require('./controller/controller_diretor.js')
+const controllerGeneros = require('./controller/controller_genero.js')
+const controllerClassificacoes = require('./controller/controller_classificacao.js')
 const { filmes } = require('./model/filmes.js')
 
 /******************************************************************************************/
@@ -157,10 +161,12 @@ app.put ('/v2/acmefilmes/filme/:id',  cors(), bodyParserJSON, async (request, re
 
 })
 
+// ATORES
+
 app.get('/v2/acmefilmes/atores', cors(), async (request, response, next) => {
 
     //Chama a função para retornar os dados de FIlme
-    let dadosAtores = await controllerFilmes.getListarAtores()
+    let dadosAtores = await controllerAtores.getListarAtores()
 
     //Validação para retornar os dados ou o erro 404
     if (dadosAtores) {
@@ -173,7 +179,59 @@ app.get('/v2/acmefilmes/atores', cors(), async (request, response, next) => {
 
 })
 
+//DIRETORES
 
+app.get('/v2/acmefilmes/diretores', cors(), async (request, response, next) => {
+
+    //Chama a função para retornar os dados de FIlme
+    let dadosDiretores = await controllerDiretores.getListarDiretores()
+
+    //Validação para retornar os dados ou o erro 404
+    if (dadosDiretores) {
+        response.json(dadosDiretores)
+        response.status(200)
+    } else {
+        response.json({ message: 'Nenhum resgistro encontrado' })
+        response.status(404)
+    }
+
+})
+
+//GENEROS
+
+app.get('/v2/acmefilmes/generos', cors(), async (request, response, next) => {
+
+    //Chama a função para retornar os dados de FIlme
+    let dadosGeneros = await controllerGeneros.getListarGeneros()
+
+    //Validação para retornar os dados ou o erro 404
+    if (dadosGeneros) {
+        response.json(dadosGeneros)
+        response.status(200)
+    } else {
+        response.json({ message: 'Nenhum resgistro encontrado' })
+        response.status(404)
+    }
+
+})
+
+//Classificação
+
+app.get('/v2/acmefilmes/classificacoes', cors(), async (request, response, next) => {
+
+    //Chama a função para retornar os dados de FIlme
+    let dadosClassificacoes = await controllerClassificacoes.getListarClassificacoes()
+
+    //Validação para retornar os dados ou o erro 404
+    if (dadosClassificacoes) {
+        response.json(dadosClassificacoes)
+        response.status(200)
+    } else {
+        response.json({ message: 'Nenhum resgistro encontrado' })
+        response.status(404)
+    }
+
+})
 
 app.listen(8080, function () {
     console.log('servidor rodando na porta 8080')
