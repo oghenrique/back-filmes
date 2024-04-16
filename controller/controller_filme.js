@@ -19,8 +19,8 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
             let statusValidated = false
             let novoFilmeJSON = {}
 
-            if (dadosFilme.nome == '' || dadosFilme.nome == undefined || dadosFilme.nome == null || dadosFilme.nome.length > 80 ||
-                dadosFilme.sinopse == '' || dadosFilme.sinopse == undefined || dadosFilme.nome == null || dadosFilme.sinopse > 65000 ||
+            if (dadosFilme.titulo == '' || dadosFilme.titulo == undefined || dadosFilme.titulo == null || dadosFilme.titulo.length > 80 ||
+                dadosFilme.sinopse == '' || dadosFilme.sinopse == undefined || dadosFilme.titulo == null || dadosFilme.sinopse > 65000 ||
                 dadosFilme.duracao == '' || dadosFilme.duracao == undefined || dadosFilme.duracao == null || dadosFilme.duracao > 9 ||
                 dadosFilme.data_lancamento == '' || dadosFilme.data_lancamento == undefined || dadosFilme.data_lancamento == null || dadosFilme.data_lancamento.length != 10 ||
                 dadosFilme.foto_capa == '' || dadosFilme.foto_capa == undefined || dadosFilme.foto_capa == null || dadosFilme.foto_capa.length > 200 ||

@@ -199,6 +199,22 @@ app.get('/v2/acmefilmes/diretores', cors(), async (request, response, next) => {
 
 //GENEROS
 
+app.post('/v2/acmefilmes/genero',  cors(), bodyParserJSON, async (request, response, next) =>{
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerGeneros.setInserirNovoGenero(dadosBody, contentType)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
+
 app.get('/v2/acmefilmes/generos', cors(), async (request, response, next) => {
 
     //Chama a função para retornar os dados de FIlme
