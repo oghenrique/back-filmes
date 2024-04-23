@@ -9,7 +9,7 @@ datasource db {
 
 model tbl_filme {
   id                Int                 @id @unique(map: "id") @default(autoincrement())
-  titulo            String              @unique(map: "titulo") @db.VarChar(100)
+  titulo            String              @db.VarChar(100)
   sinopse           String              @db.Text
   data_lancamento   DateTime            @db.Date
   data_relancamento DateTime?           @db.Date
@@ -27,24 +27,24 @@ model tbl_filme {
 
 model tbl_ator {
   id                     Int                      @id @unique(map: "id") @default(autoincrement())
-  nome                   String                   @db.VarChar(100)
-  nome_artistico         String?                  @db.VarChar(100)
+  nome_completo          String                   @db.VarChar(100)
+  nome_artistico         String                   @db.VarChar(100)
   foto                   String                   @db.VarChar(150)
   data_nascimento        DateTime                 @db.Date
   data_falecimento       DateTime?                @db.Date
-  biografia              String?                  @db.Text
+  biografia              String                   @db.Text
   id_sexo                Int
   tbl_sexo               tbl_sexo                 @relation(fields: [id_sexo], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_ator_ibfk_1")
   tbl_filme_ator         tbl_filme_ator[]
   tbl_nacionalidade_ator tbl_nacionalidade_ator[]
 
-  @@unique([nome, data_nascimento], map: "nome")
   @@index([id_sexo], map: "id_sexo")
 }
 
 model tbl_classificacao {
   id        Int         @id @unique(map: "id") @default(autoincrement())
-  sigla     String      @unique(map: "sigla") @db.VarChar(2)
+  nome      String      @db.VarChar(45)
+  sigla     String      @db.VarChar(2)
   descricao String      @db.VarChar(300)
   icone     String      @db.VarChar(150)
   tbl_filme tbl_filme[]
@@ -52,17 +52,17 @@ model tbl_classificacao {
 
 model tbl_diretor {
   id                        Int                         @id @unique(map: "id") @default(autoincrement())
-  nome                      String                      @db.VarChar(100)
+  nome_completo             String                      @db.VarChar(100)
+  nome_artistico            String                      @db.VarChar(100)
   foto                      String                      @db.VarChar(150)
   data_nascimento           DateTime                    @db.Date
   data_falecimento          DateTime?                   @db.Date
-  biografia                 String?                     @db.Text
+  biografia                 String                      @db.Text
   id_sexo                   Int
   tbl_sexo                  tbl_sexo                    @relation(fields: [id_sexo], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_diretor_ibfk_1")
   tbl_filme_diretor         tbl_filme_diretor[]
   tbl_nacionalidade_diretor tbl_nacionalidade_diretor[]
 
-  @@unique([nome, data_nascimento], map: "nome")
   @@index([id_sexo], map: "id_sexo")
 }
 
@@ -73,7 +73,7 @@ model tbl_filme_ator {
   tbl_filme tbl_filme @relation(fields: [id_filme], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_filme_ator_ibfk_1")
   tbl_ator  tbl_ator  @relation(fields: [id_ator], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_filme_ator_ibfk_2")
 
-  @@unique([id_filme, id_ator], map: "id_filme")
+  @@index([id_filme], map: "id_filme")
   @@index([id_ator], map: "id_ator")
 }
 
@@ -84,7 +84,7 @@ model tbl_filme_diretor {
   tbl_filme   tbl_filme   @relation(fields: [id_filme], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_filme_diretor_ibfk_1")
   tbl_diretor tbl_diretor @relation(fields: [id_diretor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_filme_diretor_ibfk_2")
 
-  @@unique([id_filme, id_diretor], map: "id_filme")
+  @@index([id_filme], map: "id_filme")
   @@index([id_diretor], map: "id_diretor")
 }
 
@@ -95,19 +95,19 @@ model tbl_filme_genero {
   tbl_filme  tbl_filme  @relation(fields: [id_filme], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_filme_genero_ibfk_1")
   tbl_genero tbl_genero @relation(fields: [id_genero], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_filme_genero_ibfk_2")
 
-  @@unique([id_filme, id_genero], map: "id_filme")
+  @@index([id_filme], map: "id_filme")
   @@index([id_genero], map: "id_genero")
 }
 
 model tbl_genero {
   id               Int                @id @unique(map: "id") @default(autoincrement())
-  nome             String             @unique(map: "nome") @db.VarChar(45)
+  nome             String             @db.VarChar(45)
   tbl_filme_genero tbl_filme_genero[]
 }
 
 model tbl_nacionalidade {
   id                        Int                         @id @unique(map: "id") @default(autoincrement())
-  nome                      String                      @unique(map: "nome") @db.VarChar(45)
+  nome                      String                      @db.VarChar(45)
   tbl_nacionalidade_ator    tbl_nacionalidade_ator[]
   tbl_nacionalidade_diretor tbl_nacionalidade_diretor[]
 }
@@ -119,7 +119,7 @@ model tbl_nacionalidade_ator {
   tbl_ator          tbl_ator          @relation(fields: [id_ator], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_nacionalidade_ator_ibfk_1")
   tbl_nacionalidade tbl_nacionalidade @relation(fields: [id_nacionalidade], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_nacionalidade_ator_ibfk_2")
 
-  @@unique([id_ator, id_nacionalidade], map: "id_ator")
+  @@index([id_ator], map: "id_ator")
   @@index([id_nacionalidade], map: "id_nacionalidade")
 }
 
@@ -130,13 +130,13 @@ model tbl_nacionalidade_diretor {
   tbl_diretor       tbl_diretor       @relation(fields: [id_diretor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_nacionalidade_diretor_ibfk_1")
   tbl_nacionalidade tbl_nacionalidade @relation(fields: [id_nacionalidade], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tbl_nacionalidade_diretor_ibfk_2")
 
-  @@unique([id_diretor, id_nacionalidade], map: "id_diretor")
+  @@index([id_diretor], map: "id_diretor")
   @@index([id_nacionalidade], map: "id_nacionalidade")
 }
 
 model tbl_sexo {
   id          Int           @id @unique(map: "id") @default(autoincrement())
-  sigla       String        @unique(map: "sigla") @db.VarChar(1)
+  sigla       String        @db.VarChar(1)
   nome        String        @db.VarChar(20)
   tbl_ator    tbl_ator[]
   tbl_diretor tbl_diretor[]

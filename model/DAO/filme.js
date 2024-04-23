@@ -12,73 +12,93 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 //Função para inserir um filme no Banco de Dados
-const insertFilme = async (dadosFilme) => {
-
+const insertFilme = async (dadosFilme, idGenero) => {
     try {
         let sql
 
-        //Validação para verificar se a data de relançamento é vazia, pois devemos ajustar o script SQL para o BD --- > 
-        //OBS: essa condição é provisória, já que iremos tratar no BD com uma procedure
-
-        if (dadosFilme.data_relancamento == null ||
-            dadosFilme.data_relancamento == undefined ||
-            dadosFilme.data_relancamento == ''
-        ) {
-
-            sql = `insert into tbl_filme( nome,
+        // Validando se a data de relançamento é vazia
+        if (!dadosFilme.data_relancamento) {
+            sql = `insert into tbl_filme( titulo,
                                           sinopse,
                                           duracao,
                                           data_lancamento,
                                           foto_capa,
-                                          valor_unitario
+                                          valor_unitario,
+                                          id_classificacao
                                           ) values (
-                                                    '${dadosFilme.nome}',
+                                                    '${dadosFilme.titulo}',
                                                     '${dadosFilme.sinopse}',
                                                     '${dadosFilme.duracao}',
                                                     '${dadosFilme.data_lancamento}',
                                                     '${dadosFilme.foto_capa}',
-                                                    '${dadosFilme.valor_unitario}'
+                                                    '${dadosFilme.valor_unitario}',
+                                                    '${dadosFilme.id_classificacao}'
                                                     )`
-
         } else {
-
-            sql = `insert into tbl_filme( nome,
+            sql = `insert into tbl_filme( titulo,
                                               sinopse,
                                               duracao,
                                               data_lancamento,
                                               data_relancamento,
                                               foto_capa,
-                                              valor_unitario
+                                              valor_unitario,
+                                              id_classificacao
                                              ) values (
-                                                       '${dadosFilme.nome}',
+                                                       '${dadosFilme.titulo}',
                                                        '${dadosFilme.sinopse}',
                                                        '${dadosFilme.duracao}',
                                                        '${dadosFilme.data_lancamento}',
                                                        '${dadosFilme.data_relancamento}',
                                                        '${dadosFilme.foto_capa}',
-                                                       '${dadosFilme.valor_unitario}'
+                                                       '${dadosFilme.valor_unitario}',
+                                                       '${dadosFilme.id_classificacao}'
                                             )`
-
         }
 
-        //$executeRawUnsafe() - serve para executar scripts sql que não retornam valores (insert, update e delete)
-        //$queryRawUnsafe() - serve para executar scripts sql que RETORNAM dados do BD (select)
-        let result = await prisma.$executeRawUnsafe(sql)
+        console.log("Consulta SQL para inserção do filme:", sql);
 
-        if (result)
-            return true
+        let result = await prisma.$executeRawUnsafe(sql);
 
-        else
-            return false
+        // Obter o ID do filme inserido
+        let filmeId = null;
+        if (result) {
+            filmeId = result.insertId;
+            console.log("ID do filme inserido:", filmeId);
+        } else {
+            throw new Error("Falha ao inserir o filme.");
+        }
 
-        //Cria a variável SQL
+        // Verificar se a lista de gêneros não está vazia
+        if (idGenero && idGenero.length > 0) {
+            // Usar o método map para iterar sobre a lista de gêneros e gerar as consultas SQL para inserção
+            const insertGeneroQueries = idGenero.map(id => {
+                return `insert into tbl_filme_genero (id_filme, id_genero)
+                            values (${filmeId}, ${id})`;
+            });
 
+            // Iterar sobre as consultas SQL geradas e executá-las
+            for (let i = 0; i < insertGeneroQueries.length; i++) {
+                console.log("Consulta SQL para inserção dos gêneros:", insertGeneroQueries[i]); // Adicione este console log
+                let generoResult = await prisma.$executeRawUnsafe(insertGeneroQueries[i]);
+                // Verifique se a inserção do gênero foi bem-sucedida
+                if (!generoResult) {
+                    return false; // Retorna false se houver algum problema na inserção do gênero
+                }
+                console.log("Resultado da inserção do gênero:", generoResult); // Adicione este console log
+            }
+
+            return true; // Retorna true se todas as inserções de gênero forem bem-sucedidas
+        } else {
+            // Caso a lista de gêneros esteja vazia, não é possível inserir nenhum gênero
+            return false;
+        }
     } catch (error) {
-
-        return false
+        console.error("Erro durante a inserção do filme:", error); // Adicione este console log
+        return false;
     }
-
 }
+
+
 
 const selectId = async () => {
     try {
@@ -113,24 +133,26 @@ const updateFilme = async (idFilme, dadosFilme) => {
         ) {
 
             sql = `update tbl_filme set 
-                                                nome = '${dadosFilme.nome}',
+                                                titulo = '${dadosFilme.titulo}',
                                                 sinopse =  '${dadosFilme.sinopse}',
                                                 duracao = '${dadosFilme.duracao}',
                                                 data_lancamento = '${dadosFilme.data_lancamento}',
                                                 foto_capa = '${dadosFilme.foto_capa}',
-                                                valor_unitario = '${dadosFilme.valor_unitario}'
+                                                valor_unitario = '${dadosFilme.valor_unitario}',
+                                                id_classificacao = '${dadosFilme.id_classificacao}'
                                                 where id = ${idFilme}`
 
         } else {
 
             sql = `update tbl_filme set
-                                                   nome = '${dadosFilme.nome}',
+                                                   titulo = '${dadosFilme.titulo}',
                                                    sinopse =  '${dadosFilme.sinopse}',
                                                    duracao = '${dadosFilme.duracao}',
                                                    data_lancamento = '${dadosFilme.data_lancamento}',
                                                    data_relancamento = '${dadosFilme.data_relancamento}',
                                                    foto_capa = '${dadosFilme.foto_capa}',
-                                                   valor_unitario = '${dadosFilme.valor_unitario}'
+                                                   valor_unitario = '${dadosFilme.valor_unitario}',
+                                                   id_classificacao = '${dadosFilme.id_classificacao}'
                     where id = ${idFilme}`
 
         }
@@ -138,16 +160,28 @@ const updateFilme = async (idFilme, dadosFilme) => {
         //$queryRawUnsafe() - serve para executar scripts sql que RETORNAM dados do BD (select)
         let result = await prisma.$executeRawUnsafe(sql)
 
-        // if (result)
-        return result
+        // Verifica se a atualização foi bem-sucedida
+        if (result) {
+            // Verifica se a nova ngenero foi fornecida nos dados do filme
+            if (dadosFilme.id_genero !== undefined) {
+                // Verifica se a ngenero atual é diferente da nova ngenero fornecida
+                const generoAtualQuery = `SELECT id_genero FROM tbl_filme_genero WHERE id_filme = ${idFilme}`
+                const generoAtualResult = await prisma.$executeRawUnsafe(generoAtualQuery)
+                const generoAtual = generoAtualResult[0]?.id_genero
 
-        // else
-        //     return false
-
-        //Cria a variável SQL
-
+                if (generoAtual !== dadosFilme.id_genero) {
+                    // Atualiza a ngenero do filme na tabela intermediária
+                    const updateNgeneroQuery = `UPDATE tbl_filme_genero 
+                                                      SET id_genero = ${dadosFilme.id_genero} 
+                                                      WHERE id_filme = ${idFilme}`
+                    await prisma.$executeRawUnsafe(updateNgeneroQuery)
+                }
+            }
+            return true
+        } else {
+            return false
+        }
     } catch (error) {
-
         return false
     }
 
@@ -157,14 +191,18 @@ const updateFilme = async (idFilme, dadosFilme) => {
 const deleteFilme = async (id) => {
 
     try {
-        let sql = `delete from tbl_filme where id = ${id}`
+        // Exclui o registro correspondente na tabela tbl_filme_genero
+        let sqlGenero = `DELETE FROM tbl_filme_genero WHERE id_filme = ${id}`
+        await prisma.$executeRawUnsafe(sqlGenero)
 
-        let rsFilmes = await prisma.$queryRawUnsafe(sql)
+        // Exclui o filme da tabela tbl_filme
+        let sqlFilme = `DELETE FROM tbl_filme WHERE id = ${id}`
+        await prisma.$executeRawUnsafe(sqlFilme)
 
-        return rsFilmes
-
+        return true // Retorna true para indicar que a exclusão foi bem-sucedida
     } catch (error) {
-        return false
+        console.error("Erro ao excluir filme:", error)
+        return false // Retorna false em caso de erro na exclusão
     }
 
 }
@@ -174,7 +212,18 @@ const selectAllFilmes = async () => {
 
     try {
         //Script SQL para buscar todos os registros do database
-        let sql = 'select * from tbl_filme'
+        let sql = `SELECT 
+                            a.*, 
+                            n.nome AS nome_genero,
+                            s.nome AS nome_classificacao
+                        FROM 
+                            tbl_filme a
+                        LEFT JOIN 
+                            tbl_filme_genero na ON a.id = na.id_filme
+                        LEFT JOIN 
+                            tbl_genero n ON na.id_genero = n.id
+                        LEFT JOIN 
+                            tbl_classificacao s ON a.id_classificacao = s.id`
 
         //$queryRawUnsafe(sql) ------ Encaminha uma variavel
         //$queryRaw('select * from tbl_filme') ------------- Encaminha direto o script
@@ -185,7 +234,7 @@ const selectAllFilmes = async () => {
         return rsFilmes
 
     } catch (error) {
-
+        console.error("Erro ao selecionar todos os filmes:", error)
         return false
 
     }
@@ -196,22 +245,49 @@ const selectAllFilmes = async () => {
 const selectByIdFilme = async (id) => {
 
     try {
-        let sql = `select * from tbl_filme where id = ${id}`
+        let sql = `SELECT 
+                        a.*, 
+                        n.nome AS nome_genero,
+                        s.nome AS nome_classificacao
+                    FROM 
+                        tbl_filme a
+                    LEFT JOIN 
+                        tbl_filme_genero na ON a.id = na.id_filme
+                    LEFT JOIN 
+                        tbl_genero n ON na.id_genero = n.id
+                    LEFT JOIN 
+                        tbl_classificacao s ON a.id_classificacao = s.id
+                    WHERE 
+                        a.id = ${id}`
 
         let rsFilmes = await prisma.$queryRawUnsafe(sql)
 
         return rsFilmes
 
     } catch (error) {
+        console.error("Erro ao selecionar o filme pelo ID:", error)
         return false
     }
 
 
 }
 
-const selectByNomeFilme = async (nome) => {
+const selectByNomeFilme = async (titulo) => {
     try {
-        let sql = `select * from tbl_filme where nome like '%${nome}%'`
+        let sql = `SELECT 
+                        a.*, 
+                        n.nome AS nome_genero,
+                        s.nome AS nome_classificacao
+                    FROM 
+                        tbl_filme a
+                    LEFT JOIN 
+                        tbl_filme_genero na ON a.id = na.id_filme
+                    LEFT JOIN 
+                        tbl_genero n ON na.id_genero = n.id
+                    LEFT JOIN 
+                        tbl_classificacao s ON a.id_classificacao = s.id
+                    WHERE 
+                        a.titulo LIKE '%${titulo}%'`
 
         let rsFilmes = await prisma.$queryRawUnsafe(sql)
 
