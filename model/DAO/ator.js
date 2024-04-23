@@ -5,7 +5,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 //Função para inserir um filme no Banco de Dados
-const insertAtor = async (dadosAtor, idNacionalidade) => {
+const insertAtor = async (dadosAtor) => {
     try {
        
         let sql
@@ -50,33 +50,17 @@ const insertAtor = async (dadosAtor, idNacionalidade) => {
                                                 )`
         }
 
-        // Executando o script SQL para inserir o ator
         let result = await prisma.$executeRawUnsafe(sql)
-
-        // Verificando se a inserção foi bem-sucedida
-        if (result) {
-            // Verificar se o idNacionalidade não é undefined
-            if (idNacionalidade !== undefined) {
-                // Inserindo a nacionalidade do ator na tabela intermediária
-                const insertNacionalidadeQuery = `insert into tbl_nacionalidade_ator (id_ator, id_nacionalidade)
-                                                  values (LAST_INSERT_ID(), ${idNacionalidade})`
-                let nacionalidadeResult = await prisma.$executeRawUnsafe(insertNacionalidadeQuery)
-                // Verificando se a inserção da nacionalidade foi bem-sucedida
-                if (nacionalidadeResult) {
-                    return true
-                } else {
-                    return false
-                }
-            } else {
-                // idNacionalidade é undefined, não foi possível inserir a nacionalidade
-                return false
-            }
-        } else {
+        
+        if (result)
+            return true
+        else
             return false
-        }
+
     } catch (error) {
         return false
     }
+
 }
 
 const updateAtor = async (idAtor, dadosAtor) => {
@@ -106,31 +90,16 @@ const updateAtor = async (idAtor, dadosAtor) => {
                     where id = ${idAtor}`
         }
         let result = await prisma.$executeRawUnsafe(sql)
-
-        // Verifica se a atualização foi bem-sucedida
-        if (result) {
-            // Verifica se a nova nacionalidade foi fornecida nos dados do ator
-            if (dadosAtor.id_nacionalidade !== undefined) {
-                // Verifica se a nacionalidade atual é diferente da nova nacionalidade fornecida
-                const nacionalidadeAtualQuery = `SELECT id_nacionalidade FROM tbl_nacionalidade_ator WHERE id_ator = ${idAtor}`
-                const nacionalidadeAtualResult = await prisma.$executeRawUnsafe(nacionalidadeAtualQuery)
-                const nacionalidadeAtual = nacionalidadeAtualResult[0]?.id_nacionalidade
-
-                if (nacionalidadeAtual !== dadosAtor.id_nacionalidade) {
-                    // Atualiza a nacionalidade do ator na tabela intermediária
-                    const updateNacionalidadeQuery = `UPDATE tbl_nacionalidade_ator 
-                                                      SET id_nacionalidade = ${dadosAtor.id_nacionalidade} 
-                                                      WHERE id_ator = ${idAtor}`
-                    await prisma.$executeRawUnsafe(updateNacionalidadeQuery)
-                }
-            }
+        
+        if (result)
             return true
-        } else {
+        else
             return false
-        }
+
     } catch (error) {
         return false
     }
+
 }
 
 
@@ -152,28 +121,12 @@ const selectId = async () => {
 
 const selectByIdAtor = async (id) => {
     try {
-        // Script SQL para buscar o ator pelo ID, incluindo o nome da nacionalidade e do sexo
-        let sql = `SELECT 
-                        a.*, 
-                        n.nome AS nome_nacionalidade,
-                        s.nome AS nome_sexo
-                   FROM 
-                        tbl_ator a
-                   LEFT JOIN 
-                        tbl_nacionalidade_ator na ON a.id = na.id_ator
-                   LEFT JOIN 
-                        tbl_nacionalidade n ON na.id_nacionalidade = n.id
-                   LEFT JOIN 
-                        tbl_sexo s ON a.id_sexo = s.id
-                   WHERE 
-                        a.id = ${id}`
+        let sql = `select * from tbl_ator where id=${id}`
 
-        // Executa o script SQL no DB e guarda o retorno dos dados
         let rsAtores = await prisma.$queryRawUnsafe(sql)
 
         return rsAtores
     } catch (error) {
-        console.error("Erro ao selecionar o ator pelo ID:", error)
         return false
     }
 }

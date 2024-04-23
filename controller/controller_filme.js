@@ -16,20 +16,19 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
     console.log("Dados do filme recebidos na controller:", dadosFilme)
     console.log("Tipo de conteúdo recebido na controller:", contentType)
     try {
-        if (String(contentType).toLowerCase() === 'application/json') {
+        if (String(contentType).toLowerCase() == 'application/json') {
             let statusValidated = false
             let novoFilmeJSON = {}
 
             // Verifica se os campos obrigatórios estão presentes e válidos
             if (
-                dadosFilme.titulo === '' || dadosFilme.titulo === undefined || dadosFilme.titulo === null || dadosFilme.titulo.length > 80 ||
-                dadosFilme.sinopse === '' || dadosFilme.sinopse === undefined || dadosFilme.titulo === null || dadosFilme.sinopse > 65000 ||
-                dadosFilme.duracao === '' || dadosFilme.duracao === undefined || dadosFilme.duracao === null || dadosFilme.duracao > 9 ||
-                dadosFilme.data_lancamento === '' || dadosFilme.data_lancamento === undefined || dadosFilme.data_lancamento === null || dadosFilme.data_lancamento.length !== 10 ||
-                dadosFilme.foto_capa === '' || dadosFilme.foto_capa === undefined || dadosFilme.foto_capa === null || dadosFilme.foto_capa.length > 200 ||
-                dadosFilme.valor_unitario.length > 8 || isNaN(dadosFilme.valor_unitario) || dadosFilme.id_classificacao === undefined || isNaN(dadosFilme.id_classificacao) ||
-                dadosFilme.id_classificacao === null || 
-                dadosFilme.id_genero === undefined || isNaN(dadosFilme.id_genero) || dadosFilme.id_genero.length === 0
+                dadosFilme.titulo == '' || dadosFilme.titulo == undefined || dadosFilme.titulo == null || dadosFilme.titulo.length > 80 ||
+                dadosFilme.sinopse == '' || dadosFilme.sinopse == undefined || dadosFilme.titulo == null || dadosFilme.sinopse > 65000 ||
+                dadosFilme.duracao == '' || dadosFilme.duracao == undefined || dadosFilme.duracao == null || dadosFilme.duracao > 9 ||
+                dadosFilme.data_lancamento == '' || dadosFilme.data_lancamento == undefined || dadosFilme.data_lancamento == null || dadosFilme.data_lancamento.length !== 10 ||
+                dadosFilme.foto_capa == '' || dadosFilme.foto_capa == undefined || dadosFilme.foto_capa == null || dadosFilme.foto_capa.length > 200 ||
+                dadosFilme.valor_unitario.length > 8 || isNaN(dadosFilme.valor_unitario) || dadosFilme.id_classificacao == undefined || isNaN(dadosFilme.id_classificacao) ||
+                dadosFilme.id_classificacao == null
             ) {
                 return message.ERROR_REQUIRED_FIELDS // 400
             }
@@ -47,11 +46,11 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
             // Se a variável for verdadeira, podemos encaminhar os dados para o DAO
             if (statusValidated) {
                 // Encaminha os dados para o DAO inserir
-                let novoFilme = await filmesDAO.insertFilme(dadosFilme, dadosFilme.id_genero)
+                let novoFilme = await filmesDAO.insertFilme(dadosFilme)
                 console.log("Resultado da inserção do filme:", novoFilme)
                 if (novoFilme) {
                     let id = await filmesDAO.selectId()
-
+                    
                     // Cria o JSON de retorno com informações de requisição e os dados novos
                     novoFilmeJSON.status = message.SUCESS_CREATED_ITEM.status
                     novoFilmeJSON.status_code = message.SUCESS_CREATED_ITEM.status_code
@@ -88,8 +87,7 @@ const setAtualizarFilme = async (dadosFilme, contentType, id) => {
                 dadosFilme.data_lancamento == '' || dadosFilme.data_lancamento == undefined || dadosFilme.data_lancamento == null || dadosFilme.data_lancamento.length != 10 ||
                 dadosFilme.foto_capa == '' || dadosFilme.foto_capa == undefined || dadosFilme.foto_capa == null || dadosFilme.foto_capa.length > 200 ||
                 dadosFilme.valor_unitario.length > 8 || isNaN(dadosFilme.valor_unitario) || dadosFilme.id_classificacao == undefined || isNaN(dadosFilme.id_classificacao) ||
-                dadosFilme.id_classificacao == null || 
-                dadosFilme.id_genero == undefined || isNaN(dadosFilme.id_genero) || dadosFilme.id_genero == null
+                dadosFilme.id_classificacao == null
 
             ) {
                 return message.ERROR_REQUIRED_FIELDS//400

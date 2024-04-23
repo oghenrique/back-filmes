@@ -99,7 +99,7 @@ app.get('/v2/acmefilmes/filmes', cors(), async (request, response, next) => {
 //EndPoints: listar filme pelo nome usando Query
 app.get('/v2/acmefilmes/filtro/filme', cors(), async (request, response, next) => {
 
-    let nomeFilme = request.query.nomefilme
+    let nomeFilme = request.query.nomeFilme
     
     let dadosFilme = await controllerFilmes.getBuscarNomeFilme(nomeFilme)
 
