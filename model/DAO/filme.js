@@ -55,49 +55,47 @@ const insertFilme = async (dadosFilme, idGenero) => {
                                             )`
         }
 
-        console.log("Consulta SQL para inserção do filme:", sql);
+        console.log("Consulta SQL para inserção do filme:", sql)
 
-        let result = await prisma.$executeRawUnsafe(sql);
+        let result = await prisma.$executeRawUnsafe(sql)
 
         // Obter o ID do filme inserido
-        let filmeId = null;
+        let filmeId = null
         if (result) {
-            filmeId = result.insertId;
-            console.log("ID do filme inserido:", filmeId);
+            filmeId = result.insertId
+            console.log("ID do filme inserido:", filmeId)
         } else {
-            throw new Error("Falha ao inserir o filme.");
+            throw new Error("Falha ao inserir o filme.")
         }
 
-        // Verificar se a lista de gêneros não está vazia
-        if (idGenero && idGenero.length > 0) {
-            // Usar o método map para iterar sobre a lista de gêneros e gerar as consultas SQL para inserção
-            const insertGeneroQueries = idGenero.map(id => {
-                return `insert into tbl_filme_genero (id_filme, id_genero)
-                            values (${filmeId}, ${id})`;
-            });
+        // Verificar se foi fornecido um ID de gênero
+        if (idGenero) {
+            // Gerar consulta SQL para inserir o gênero do filme
+            const insertGeneroQuery = `insert into tbl_filme_genero (id_filme, id_genero)
+                                            values (LAST_INSERT_ID(), ${idGenero})`
 
-            // Iterar sobre as consultas SQL geradas e executá-las
-            for (let i = 0; i < insertGeneroQueries.length; i++) {
-                console.log("Consulta SQL para inserção dos gêneros:", insertGeneroQueries[i]); // Adicione este console log
-                let generoResult = await prisma.$executeRawUnsafe(insertGeneroQueries[i]);
-                // Verifique se a inserção do gênero foi bem-sucedida
-                if (!generoResult) {
-                    return false; // Retorna false se houver algum problema na inserção do gênero
-                }
-                console.log("Resultado da inserção do gênero:", generoResult); // Adicione este console log
+            console.log("Consulta SQL para inserção do gênero:", insertGeneroQuery)
+
+            // Executar a consulta SQL para inserir o gênero
+            let generoResult = await prisma.$executeRawUnsafe(insertGeneroQuery)
+
+            // Verificar se a inserção do gênero foi bem-sucedida
+            if (!generoResult) {
+                return false // Retorna false se houver algum problema na inserção do gênero
             }
 
-            return true; // Retorna true se todas as inserções de gênero forem bem-sucedidas
+            console.log("Resultado da inserção do gênero:", generoResult) // Adicione este console log
+
+            return true // Retorna true se a inserção do gênero for bem-sucedida
         } else {
-            // Caso a lista de gêneros esteja vazia, não é possível inserir nenhum gênero
-            return false;
+            // Se não foi fornecido um ID de gênero, retorna false
+            return false
         }
     } catch (error) {
-        console.error("Erro durante a inserção do filme:", error); // Adicione este console log
-        return false;
+        console.error("Erro durante a inserção do filme:", error) // Adicione este console log
+        return false
     }
 }
-
 
 
 const selectId = async () => {

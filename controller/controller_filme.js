@@ -29,7 +29,7 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
                 dadosFilme.foto_capa === '' || dadosFilme.foto_capa === undefined || dadosFilme.foto_capa === null || dadosFilme.foto_capa.length > 200 ||
                 dadosFilme.valor_unitario.length > 8 || isNaN(dadosFilme.valor_unitario) || dadosFilme.id_classificacao === undefined || isNaN(dadosFilme.id_classificacao) ||
                 dadosFilme.id_classificacao === null || 
-                dadosFilme.id_genero === undefined || !Array.isArray(dadosFilme.id_genero) || dadosFilme.id_genero.length === 0
+                dadosFilme.id_genero === undefined || isNaN(dadosFilme.id_genero) || dadosFilme.id_genero.length === 0
             ) {
                 return message.ERROR_REQUIRED_FIELDS // 400
             }
