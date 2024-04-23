@@ -12,10 +12,9 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 //Função para inserir um filme no Banco de Dados
-const insertFilme = async (dadosFilme, idGenero) => {
+const insertFilme = async (dadosFilme) => {
     try {
         let sql
-
         // Validando se a data de relançamento é vazia
         if (!dadosFilme.data_relancamento) {
             sql = `insert into tbl_filme( titulo,
@@ -164,9 +163,7 @@ const deleteFilme = async (id) => {
 
 //Função para retornar todos os filmes do Banco de Dados
 const selectAllFilmes = async () => {
-
     try {
-
         let sql = 'select * from tbl_filme'
 
         let rsFilmes = await prisma.$queryRawUnsafe(sql)
@@ -175,7 +172,6 @@ const selectAllFilmes = async () => {
     } catch (error) {
         return false
     }
-
 }
 
 //Função para buscar um filme no Banco de Dados filtrando pelo ID
@@ -196,11 +192,10 @@ const selectByIdFilme = async (id) => {
 const selectByNomeFilme = async (titulo) => {
     try {
         let sql = `select * from tbl_filme where titulo like '%${titulo}%'`
-
+        
         let rsFilmes = await prisma.$queryRawUnsafe(sql)
 
         return rsFilmes
-
     } catch (error) {
         return false
     }
