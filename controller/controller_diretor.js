@@ -1,10 +1,12 @@
-// Import do arquivo DAO para manipular dados dos atores
+// Import do arquivo DAO para manipular dados dos diretores
 const diretoresDAO = require('../model/DAO/diretor.js')
+const sexoDAO = require('../model/DAO/sexo.js')
+const nacionalidadeDiretorDAO = require('../model/DAO/diretor_nacionalidade.js')
+const nacionalidadeDAO = require('../model/DAO/nacionalidade.js')
 
 //Import do arquivo de configuração do Projeto
 const message = require('../modulo/config.js')
 
-//Função para inserir um novo atore
 const setInserirNovoDiretor = async (dadosDiretor, contentType) => {
 
     try {
@@ -17,8 +19,7 @@ const setInserirNovoDiretor = async (dadosDiretor, contentType) => {
                 dadosDiretor.biografia == undefined || dadosDiretor.biografia == null || dadosDiretor.data_nascimento == '' ||
                 dadosDiretor.data_nascimento == undefined || dadosDiretor.data_nascimento == null || dadosDiretor.data_nascimento.length != 10 ||
                 dadosDiretor.foto == '' || dadosDiretor.foto == undefined || dadosDiretor.foto == null || dadosDiretor.foto.length > 150 ||
-                dadosDiretor.id_sexo == undefined || isNaN(dadosDiretor.id_sexo) || dadosDiretor.id_sexo == null || 
-                dadosDiretor.id_nacionalidade == undefined || isNaN(dadosDiretor.id_nacionalidade) || dadosDiretor.id_nacionalidade == null 
+                dadosDiretor.id_sexo == undefined || isNaN(dadosDiretor.id_sexo) || dadosDiretor.id_sexo == null
 
 
             ) {
@@ -47,7 +48,7 @@ const setInserirNovoDiretor = async (dadosDiretor, contentType) => {
                 if (statusValidated) {
 
                     //encaminha os dados para o DAO inserir
-                    let novoDiretor = await diretoresDAO.insertDiretor(dadosDiretor, dadosDiretor.id_nacionalidade)
+                    let novoDiretor = await diretoresDAO.insertDiretor(dadosDiretor)
 
                     if (novoDiretor) {
 
@@ -119,8 +120,8 @@ const setAtualizarDiretor = async (dadosDiretor, contentType, id) => {
                     let diretorAtualizado = await diretoresDAO.updateDiretor(id, dadosDiretor)
 
                     if (diretorAtualizado) {
-                        let updatedDiretor = await diretoresDAO.selectByIdDiretor(id) // Recupera o atore atualizado do banco de dados
-                        let updatedId = updatedDiretor[0].id // Extrai o id do atore atualizado
+                        let updatedDiretor = await diretoresDAO.selectByIdDiretor(id) // Recupera o diretore atualizado do banco de dados
+                        let updatedId = updatedDiretor[0].id // Extrai o id do diretore atualizado
 
                         // Constrói o JSON de resposta com o id atualizado
                         updateDiretorJSON.status = message.SUCESS_UPDATE_ITEM.status
@@ -180,7 +181,7 @@ const setExcluirDiretor = async (id) => {
 
 }
 
-//Função para retornar todos os atores do database
+//Função para retornar todos os diretores do database
 const getListarDiretores = async () => {
 
     //Cria o objeto JSON
@@ -192,8 +193,25 @@ const getListarDiretores = async () => {
     //Validação para criar o JSON de dados
     if (dadosDiretores) {
         if (dadosDiretores.length > 0) {
-            diretoresJSON.diretores = dadosDiretores
-            diretoresJSON.quantidade = dadosDiretores.length
+
+            let diretoresComSexo = await Promise.all(dadosDiretores.map(async (diretor) => {
+                let sexoDiretor = await sexoDAO.selectSexoById(diretor.id_sexo)
+                delete diretor.id_sexo
+                diretor.sexo = sexoDiretor
+
+                let nacionalidadesDiretor = await nacionalidadeDiretorDAO.selectByIdNacionalidadeDiretor(diretor.id)
+                if (nacionalidadesDiretor) {
+                    diretor.nacionalidade = await Promise.all(nacionalidadesDiretor.map(async (nacionalidadediretor) => {
+                        const nacionalidade = await nacionalidadeDAO.selectByIdNacionalidade(nacionalidadediretor.id_nacionalidade)
+                        return nacionalidade
+                    }))
+                }
+
+                return diretor
+            }))
+
+            diretoresJSON.diretores = diretoresComSexo
+            diretoresJSON.quantidade = diretoresComSexo.length
             diretoresJSON.status_code = 200
 
             return diretoresJSON
@@ -211,20 +229,36 @@ const getBuscarDiretor = async (id) => {
 
     let diretorJSON = {}
 
-    //Validação para verificar o ID do atore antes de encaminhar para o DAO
+    //Validação para verificar o ID do diretore antes de encaminhar para o DAO
     if (idDiretor == '' || idDiretor == undefined || isNaN(idDiretor)) {
         return message.ERROR_INVALID_ID
     } else {
 
-        //Encaminha o ID do atore para o DAO para o retorno do Banco de Dados
+        //Encaminha o ID do diretore para o DAO para o retorno do Banco de Dados
         let dadosDiretor = await diretoresDAO.selectByIdDiretor(idDiretor)
 
         //Validação para verificar se o DAO retornou dados
         if (dadosDiretor) {
 
             if (dadosDiretor.length > 0) {
-                //Cria o JSON de retorno de dados
-                diretorJSON.diretor = dadosDiretor
+                
+                let diretoresComSexo = await Promise.all(dadosDiretor.map(async (diretor) => {
+                    let sexoDiretor = await sexoDAO.selectSexoById(diretor.id_sexo)
+                    delete diretor.id_sexo
+                    diretor.sexo = sexoDiretor
+    
+                    let nacionalidadesDiretor = await nacionalidadeDiretorDAO.selectByIdNacionalidadeDiretor(diretor.id)
+                    if (nacionalidadesDiretor) {
+                        diretor.nacionalidade = await Promise.all(nacionalidadesDiretor.map(async (nacionalidadediretor) => {
+                            const nacionalidade = await nacionalidadeDAO.selectByIdNacionalidade(nacionalidadediretor.id_nacionalidade)
+                            return nacionalidade
+                        }))
+                    }
+    
+                    return diretor
+                }))
+
+                diretorJSON.diretor = diretoresComSexo
                 diretorJSON.status_code = 200
 
                 return diretorJSON
@@ -253,7 +287,23 @@ const getBuscarNomeCompletoDiretor = async (nome) => {
 
             if (dadosDiretor.length > 0) {
 
-                diretorJSON.diretor = dadosDiretor
+                let diretoresComSexo = await Promise.all(dadosDiretor.map(async (diretor) => {
+                    let sexoDiretor = await sexoDAO.selectSexoById(diretor.id_sexo)
+                    delete diretor.id_sexo
+                    diretor.sexo = sexoDiretor
+    
+                    let nacionalidadesDiretor = await nacionalidadeDiretorDAO.selectByIdNacionalidadeDiretor(diretor.id)
+                    if (nacionalidadesDiretor) {
+                        diretor.nacionalidade = await Promise.all(nacionalidadesDiretor.map(async (nacionalidadediretor) => {
+                            const nacionalidade = await nacionalidadeDAO.selectByIdNacionalidade(nacionalidadediretor.id_nacionalidade)
+                            return nacionalidade
+                        }))
+                    }
+    
+                    return diretor
+                }))
+
+                diretorJSON.diretor = diretoresComSexo
                 diretorJSON.status_code = 200
 
                 return diretorJSON
@@ -282,7 +332,23 @@ const getBuscarNomeArtisticoDiretor = async (nome) => {
 
             if (dadosDiretor.length > 0) {
 
-                diretorJSON.diretor = dadosDiretor
+                let diretoresComSexo = await Promise.all(dadosDiretor.map(async (diretor) => {
+                    let sexoDiretor = await sexoDAO.selectSexoById(diretor.id_sexo)
+                    delete diretor.id_sexo
+                    diretor.sexo = sexoDiretor
+    
+                    let nacionalidadesDiretor = await nacionalidadeDiretorDAO.selectByIdNacionalidadeDiretor(diretor.id)
+                    if (nacionalidadesDiretor) {
+                        diretor.nacionalidade = await Promise.all(nacionalidadesDiretor.map(async (nacionalidadediretor) => {
+                            const nacionalidade = await nacionalidadeDAO.selectByIdNacionalidade(nacionalidadediretor.id_nacionalidade)
+                            return nacionalidade
+                        }))
+                    }
+    
+                    return diretor
+                }))
+
+                diretorJSON.diretor = diretoresComSexo
                 diretorJSON.status_code = 200
 
                 return diretorJSON

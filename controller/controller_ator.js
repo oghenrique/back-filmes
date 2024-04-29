@@ -1,5 +1,8 @@
 // Import do arquivo DAO para manipular dados dos atores
 const atoresDAO = require('../model/DAO/ator.js')
+const sexoDAO = require('../model/DAO/sexo.js')
+const nacionalidadeAtorDAO = require('../model/DAO/ator_nacionalidade.js')
+const nacionalidadeDAO = require('../model/DAO/nacionalidade.js')
 
 //Import do arquivo de configuração do Projeto
 const message = require('../modulo/config.js')
@@ -18,8 +21,7 @@ const setInserirNovoAtor = async (dadosAtor, contentType) => {
                 dadosAtor.biografia == undefined || dadosAtor.biografia == null || dadosAtor.data_nascimento == '' ||
                 dadosAtor.data_nascimento == undefined || dadosAtor.data_nascimento == null || dadosAtor.data_nascimento.length != 10 ||
                 dadosAtor.foto == '' || dadosAtor.foto == undefined || dadosAtor.foto == null || dadosAtor.foto.length > 150 ||
-                dadosAtor.id_sexo == undefined || isNaN(dadosAtor.id_sexo) || dadosAtor.id_sexo == null || 
-                dadosAtor.id_nacionalidade == undefined || isNaN(dadosAtor.id_nacionalidade) || dadosAtor.id_nacionalidade == null 
+                dadosAtor.id_sexo == undefined || isNaN(dadosAtor.id_sexo) || dadosAtor.id_sexo == null
 
             ) {
                 return message.ERROR_REQUIRED_FIELDS//400
@@ -47,10 +49,10 @@ const setInserirNovoAtor = async (dadosAtor, contentType) => {
                 if (statusValidated) {
 
                     //encaminha os dados para o DAO inserir
-                    let novoAtor = await atoresDAO.insertAtor(dadosAtor, dadosAtor.id_nacionalidade)
+                    let novoAtor = await atoresDAO.insertAtor(dadosAtor)
 
                     if (novoAtor) {
-                        
+
                         let id = await atoresDAO.selectId()
 
                         //Cria o JSON de retorno com informações de requisição e os dados novos
@@ -74,14 +76,10 @@ const setInserirNovoAtor = async (dadosAtor, contentType) => {
         }
 
     } catch (error) {
-        console.log("Erro na controller:", error); // Adiciona log para verificar erros na controller
         return message.ERROR_INTERNAL_SERVER //500 erro na camada da controller
     }
 
 }
-
-
-
 
 const setAtualizarAtor = async (dadosAtor, contentType, id) => {
     try {
@@ -94,8 +92,7 @@ const setAtualizarAtor = async (dadosAtor, contentType, id) => {
                 dadosAtor.biografia == undefined || dadosAtor.biografia == null || dadosAtor.data_nascimento == '' ||
                 dadosAtor.data_nascimento == undefined || dadosAtor.data_nascimento == null || dadosAtor.data_nascimento.length != 10 ||
                 dadosAtor.foto == '' || dadosAtor.foto == undefined || dadosAtor.foto == null || dadosAtor.foto.length > 150 ||
-                dadosAtor.id_sexo == undefined || isNaN(dadosAtor.id_sexo) || dadosAtor.id_sexo == null || 
-                dadosAtor.id_nacionalidade == undefined || isNaN(dadosAtor.id_nacionalidade) || dadosAtor.id_nacionalidade == null 
+                dadosAtor.id_sexo == undefined || isNaN(dadosAtor.id_sexo) || dadosAtor.id_sexo == null
 
             ) {
                 return message.ERROR_REQUIRED_FIELDS//400
@@ -166,12 +163,12 @@ const setExcluirAtor = async (id) => {
 
             return message.ERROR_INVALID_ID //400
 
-        } else if(validaAtor.status == false){
+        } else if (validaAtor.status == false) {
             return message.ERROR_NOT_FOUND
 
         } else {
-            
-            if(dadosAtor)
+
+            if (dadosAtor)
                 return message.SUCESS_DELETE_ITEM // 200
             else
                 return message.ERROR_INTERNAL_SERVER_DB
@@ -186,119 +183,176 @@ const setExcluirAtor = async (id) => {
 }
 
 //Função para retornar todos os atores do database
-const getListarAtores = async () => {
+const getListarAtores = async function () {
+    try {
+        let atoresJSON = {}
 
-    //Cria o objeto JSON
-    let atoresJSON = {}
+        let dadosAtor = await atoresDAO.selectAllAtores()
 
-    //Cria a função DAO para retornar os dados do BD
-    let dadosAtores = await atoresDAO.selectAllAtores()
-
-    //Validação para criar o JSON de dados
-    if (dadosAtores) {
-        if (dadosAtores.length > 0) {
-            atoresJSON.atores = dadosAtores
-            atoresJSON.quantidade = dadosAtores.length
-            atoresJSON.status_code = 200
-
-            return atoresJSON
-        } else {
-            return message.ERROR_NOT_FOUND
-        }
-    } else {
-        return message.ERROR_INTERNAL_SERVER_DB
-    }
-}
-
-const getBuscarAtor = async (id) => {
-
-    let idAtor = id
-
-    let atorJSON = {}
-
-    //Validação para verificar o ID do atore antes de encaminhar para o DAO
-    if (idAtor == '' || idAtor == undefined || isNaN(idAtor)) {
-        return message.ERROR_INVALID_ID
-    } else {
-
-        //Encaminha o ID do atore para o DAO para o retorno do Banco de Dados
-        let dadosAtor = await atoresDAO.selectByIdAtor(idAtor)
-
-        //Validação para verificar se o DAO retornou dados
         if (dadosAtor) {
-
             if (dadosAtor.length > 0) {
-                //Cria o JSON de retorno de dados
-                atorJSON.ator = dadosAtor
-                atorJSON.status_code = 200
+                let atoresComSexo = await Promise.all(dadosAtor.map(async (ator) => {
+                    let sexoAtor = await sexoDAO.selectSexoById(ator.id_sexo)
+                    delete ator.id_sexo
+                    ator.sexo = sexoAtor
 
-                return atorJSON
+                    let nacionalidadesAtor = await nacionalidadeAtorDAO.selectByIdNacionalidadeAtor(ator.id)
+                    if (nacionalidadesAtor) {
+                        ator.nacionalidade = await Promise.all(nacionalidadesAtor.map(async (nacionalidadeAtor) => {
+                            const nacionalidade = await nacionalidadeDAO.selectByIdNacionalidade(nacionalidadeAtor.id_nacionalidade)
+                            return nacionalidade
+                        }))
+                    }
+
+                    return ator
+                }))
+
+                atoresJSON.atores = atoresComSexo
+                atoresJSON.quantidade = atoresComSexo.length
+                atoresJSON.status_code = 200
+                return atoresJSON
             } else {
                 return message.ERROR_NOT_FOUND
             }
         } else {
             return message.ERROR_INTERNAL_SERVER_DB
         }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER
+    }
+}
+
+
+
+const getBuscarAtor = async (id) => {
+    try {
+        let idAtor = id
+        let atorJSON = {}
+
+        if (idAtor == '' || idAtor == undefined || isNaN(idAtor)) {
+            return message.ERROR_INVALID_ID
+        } else {
+            let dadosAtor = await atoresDAO.selectByIdAtor(idAtor)
+
+            if (dadosAtor) {
+                if (dadosAtor.length > 0) {
+                    let atoresComSexo = await Promise.all(dadosAtor.map(async (ator) => {
+                        let sexoAtor = await sexoDAO.selectSexoById(ator.id_sexo)
+                        delete ator.id_sexo
+                        ator.sexo = sexoAtor
+    
+                        let nacionalidadesAtor = await nacionalidadeAtorDAO.selectByIdNacionalidadeAtor(ator.id)
+                        if (nacionalidadesAtor) {
+                            ator.nacionalidade = await Promise.all(nacionalidadesAtor.map(async (nacionalidadeAtor) => {
+                                const nacionalidade = await nacionalidadeDAO.selectByIdNacionalidade(nacionalidadeAtor.id_nacionalidade)
+                                return nacionalidade
+                            }))
+                        }
+    
+                        return ator
+                    }))
+
+                    atorJSON.ator = atoresComSexo
+                    atorJSON.status_code = 200
+                    return atorJSON
+                } else {
+                    return message.ERROR_NOT_FOUND
+                }
+            } else {
+                return message.ERROR_INTERNAL_SERVER_DB
+            }
+        }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER
     }
 }
 
 const getBuscarNomeCompletoAtor = async (nome) => {
+    try {
+        let nomeCompleto = nome
+        let atorJSON = {}
 
-    let nomeCompleto = nome
-
-    let atorJSON = {}
-
-    if (nomeCompleto == '' || nomeCompleto == undefined) {
-        return message.ERROR_NOT_FOUND
-    } else {
-
-        let dadosAtor = await atoresDAO.selectByNomeCompletoAtor(nomeCompleto)
-
-        if (dadosAtor) {
-
-            if (dadosAtor.length > 0) {
-
-                atorJSON.ator = dadosAtor
-                atorJSON.status_code = 200
-
-                return atorJSON
-            } else {
-                return message.ERROR_NOT_FOUND
-            }
+        if (nomeCompleto == '' || nomeCompleto == undefined) {
+            return message.ERROR_NOT_FOUND
         } else {
-            return message.ERROR_INTERNAL_SERVER_DB
+            let dadosAtor = await atoresDAO.selectByNomeCompletoAtor(nomeCompleto)
+
+            if (dadosAtor) {
+                if (dadosAtor.length > 0) {
+                    let atoresComSexo = await Promise.all(dadosAtor.map(async (ator) => {
+                        let sexoAtor = await sexoDAO.selectSexoById(ator.id_sexo)
+                        delete ator.id_sexo
+                        ator.sexo = sexoAtor
+    
+                        let nacionalidadesAtor = await nacionalidadeAtorDAO.selectByIdNacionalidadeAtor(ator.id)
+                        if (nacionalidadesAtor) {
+                            ator.nacionalidade = await Promise.all(nacionalidadesAtor.map(async (nacionalidadeAtor) => {
+                                const nacionalidade = await nacionalidadeDAO.selectByIdNacionalidade(nacionalidadeAtor.id_nacionalidade)
+                                return nacionalidade
+                            }))
+                        }
+    
+                        return ator
+                    }))
+
+                    atorJSON.ator = atoresComSexo
+                    atorJSON.status_code = 200
+                    return atorJSON
+                } else {
+                    return message.ERROR_NOT_FOUND
+                }
+            } else {
+                return message.ERROR_INTERNAL_SERVER_DB
+            }
         }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER
     }
 }
 
 const getBuscarNomeArtisticoAtor = async (nome) => {
+    try {
+        let nomeArtistico = nome
+        let atorJSON = {}
 
-    let nomeArtistico = nome
-
-    let atorJSON = {}
-
-    if (nomeArtistico == '' || nomeArtistico == undefined) {
-        return message.ERROR_NOT_FOUND
-    } else {
-
-        let dadosAtor = await atoresDAO.selectByNomeArtisticoAtor(nomeArtistico)
-
-        if (dadosAtor) {
-
-            if (dadosAtor.length > 0) {
-
-                atorJSON.ator = dadosAtor
-                atorJSON.status_code = 200
-
-                return atorJSON
-            } else {
-                return message.ERROR_NOT_FOUND
-            }
+        if (nomeArtistico == '' || nomeArtistico == undefined) {
+            return message.ERROR_NOT_FOUND
         } else {
-            return message.ERROR_INTERNAL_SERVER_DB
+            let dadosAtor = await atoresDAO.selectByNomeArtisticoAtor(nomeArtistico)
+
+            if (dadosAtor) {
+                if (dadosAtor.length > 0) {
+                    let atoresComSexo = await Promise.all(dadosAtor.map(async (ator) => {
+                        let sexoAtor = await sexoDAO.selectSexoById(ator.id_sexo)
+                        delete ator.id_sexo
+                        ator.sexo = sexoAtor
+    
+                        let nacionalidadesAtor = await nacionalidadeAtorDAO.selectByIdNacionalidadeAtor(ator.id)
+                        if (nacionalidadesAtor) {
+                            ator.nacionalidade = await Promise.all(nacionalidadesAtor.map(async (nacionalidadeAtor) => {
+                                const nacionalidade = await nacionalidadeDAO.selectByIdNacionalidade(nacionalidadeAtor.id_nacionalidade)
+                                return nacionalidade
+                            }))
+                        }
+    
+                        return ator
+                    }))
+
+                    atorJSON.ator = atoresComSexo
+                    atorJSON.status_code = 200
+                    return atorJSON
+                } else {
+                    return message.ERROR_NOT_FOUND
+                }
+            } else {
+                return message.ERROR_INTERNAL_SERVER_DB
+            }
         }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER
     }
 }
+
 
 module.exports = {
     setInserirNovoAtor,

@@ -5,7 +5,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 //Função para inserir um filme no Banco de Dados
-const insertDiretor = async (dadosDiretor, idNacionalidade) => {
+const insertDiretor = async (dadosDiretor) => {
 
     try {
         let sql
@@ -54,28 +54,12 @@ const insertDiretor = async (dadosDiretor, idNacionalidade) => {
         //$executeRawUnsafe() - serve para executar scripts sql que não retornam valores (insert, update e delete)
         //$queryRawUnsafe() - serve para executar scripts sql que RETORNAM dados do BD (select)
         let result = await prisma.$executeRawUnsafe(sql)
-
-        // Verificando se a inserção foi bem-sucedida
-        if (result) {
-            // Verificar se o idNacionalidade não é undefined
-            if (idNacionalidade !== undefined) {
-                // Inserindo a nacionalidade do diretor na tabela intermediária
-                const insertNacionalidadeQuery = `insert into tbl_nacionalidade_diretor (id_diretor, id_nacionalidade)
-                                                  values (LAST_INSERT_ID(), ${idNacionalidade})`
-                let nacionalidadeResult = await prisma.$executeRawUnsafe(insertNacionalidadeQuery)
-                // Verificando se a inserção da nacionalidade foi bem-sucedida
-                if (nacionalidadeResult) {
-                    return true
-                } else {
-                    return false
-                }
-            } else {
-                // idNacionalidade é undefined, não foi possível inserir a nacionalidade
-                return false
-            }
-        } else {
+        
+        if (result)
+            return true
+        else
             return false
-        }
+
     } catch (error) {
         return false
     }
@@ -118,31 +102,14 @@ const updateDiretor = async (idDiretor, dadosDiretor) => {
                     where id = ${idDiretor}`
 
         }
-        //$executeRawUnsafe() - serve para executar scripts sql que não retornam valores (insert, update e delete)
-        //$queryRawUnsafe() - serve para executar scripts sql que RETORNAM dados do BD (select)
+        
         let result = await prisma.$executeRawUnsafe(sql)
-
-        // Verifica se a atualização foi bem-sucedida
-        if (result) {
-            // Verifica se a nova nacionalidade foi fornecida nos dados do diretor
-            if (dadosDiretor.id_nacionalidade !== undefined) {
-                // Verifica se a nacionalidade atual é diferente da nova nacionalidade fornecida
-                const nacionalidadeAtualQuery = `SELECT id_nacionalidade FROM tbl_nacionalidade_diretor WHERE id_diretor = ${idDiretor}`
-                const nacionalidadeAtualResult = await prisma.$executeRawUnsafe(nacionalidadeAtualQuery)
-                const nacionalidadeAtual = nacionalidadeAtualResult[0]?.id_nacionalidade
-
-                if (nacionalidadeAtual !== dadosDiretor.id_nacionalidade) {
-                    // Atualiza a nacionalidade do diretor na tabela intermediária
-                    const updateNacionalidadeQuery = `UPDATE tbl_nacionalidade_diretor 
-                                                      SET id_nacionalidade = ${dadosDiretor.id_nacionalidade} 
-                                                      WHERE id_diretor = ${idDiretor}`
-                    await prisma.$executeRawUnsafe(updateNacionalidadeQuery)
-                }
-            }
+        
+        if (result)
             return true
-        } else {
+        else
             return false
-        }
+
     } catch (error) {
         return false
     }
@@ -167,47 +134,32 @@ const selectId = async () => {
 const selectByIdDiretor = async (id) => {
 
     try {
-        // Script SQL para buscar o diretor pelo ID, incluindo o nome da nacionalidade e do sexo
-        let sql = `SELECT 
-                        a.*, 
-                        n.nome AS nome_nacionalidade,
-                        s.nome AS nome_sexo
-                   FROM 
-                        tbl_diretor a
-                   LEFT JOIN 
-                        tbl_nacionalidade_diretor na ON a.id = na.id_diretor
-                   LEFT JOIN 
-                        tbl_nacionalidade n ON na.id_nacionalidade = n.id
-                   LEFT JOIN 
-                        tbl_sexo s ON a.id_sexo = s.id
-                   WHERE 
-                        a.id = ${id}`
+        let sql = `select * from tbl_diretor where id=${id}`
 
-        // Executa o script SQL no DB e guarda o retorno dos dados
         let rsDiretores = await prisma.$queryRawUnsafe(sql)
 
         return rsDiretores
     } catch (error) {
-        console.error("Erro ao selecionar o diretor pelo ID:", error)
         return false
     }
 }
 
 const deleteDiretor = async (id) => {
 
+    const idDiretor = id
+    
     try {
-        // Exclui o registro correspondente na tabela tbl_nacionalidade_diretor
-        let sqlNacionalidade = `DELETE FROM tbl_nacionalidade_diretor WHERE id_diretor = ${id}`
-        await prisma.$executeRawUnsafe(sqlNacionalidade)
-
-        // Exclui o diretor da tabela tbl_diretor
-        let sqlDiretor = `DELETE FROM tbl_diretor WHERE id = ${id}`
-        await prisma.$executeRawUnsafe(sqlDiretor)
-
-        return true // Retorna true para indicar que a exclusão foi bem-sucedida
+         let sql = `delete from tbl_diretor where id = ${idDiretor}`
+    
+         let result = await prisma.$executeRawUnsafe(sql)
+    
+         if (result) {
+             return true
+        } else {
+            return false
+         }
     } catch (error) {
-        console.error("Erro ao excluir diretor:", error)
-        return false // Retorna false em caso de erro na exclusão
+        return false
     }
 
 }
@@ -216,26 +168,12 @@ const deleteDiretor = async (id) => {
 const selectAllDiretores = async () => {
 
     try {
-        // Script SQL para buscar todos os registros do database
-        let sql = `SELECT 
-                        a.*, 
-                        n.nome AS nome_nacionalidade,
-                        s.nome AS nome_sexo
-                   FROM 
-                        tbl_diretor a
-                   LEFT JOIN 
-                        tbl_nacionalidade_diretor na ON a.id = na.id_diretor
-                   LEFT JOIN 
-                        tbl_nacionalidade n ON na.id_nacionalidade = n.id
-                   LEFT JOIN 
-                        tbl_sexo s ON a.id_sexo = s.id`
+        let sql = 'select * from tbl_diretor'
 
-        // Executa o script SQL no DB e guarda o retorno dos dados
         let rsDiretores = await prisma.$queryRawUnsafe(sql)
 
         return rsDiretores
     } catch (error) {
-        console.error("Erro ao selecionar todos os diretores:", error)
         return false
     }
 
@@ -243,56 +181,24 @@ const selectAllDiretores = async () => {
 
 const selectByNomeCompletoDiretor = async (nome_completo) => {
     try {
-        // Script SQL para buscar diretores pelo nome completo, incluindo o nome da nacionalidade e do sexo
-        let sql = `SELECT 
-                        a.*, 
-                        n.nome AS nome_nacionalidade,
-                        s.nome AS nome_sexo
-                   FROM 
-                        tbl_diretor a
-                   LEFT JOIN 
-                        tbl_nacionalidade_diretor na ON a.id = na.id_diretor
-                   LEFT JOIN 
-                        tbl_nacionalidade n ON na.id_nacionalidade = n.id
-                   LEFT JOIN 
-                        tbl_sexo s ON a.id_sexo = s.id
-                   WHERE 
-                        a.nome_completo LIKE '%${nome_completo}%'`
-
-        // Executa o script SQL no DB e guarda o retorno dos dados
+        let sql = `select * from tbl_diretor where nome_completo like '%${nome_completo}%'`
+        
         let rsDiretores = await prisma.$queryRawUnsafe(sql)
 
         return rsDiretores
     } catch (error) {
-        console.error("Erro ao selecionar diretores pelo nome completo:", error)
         return false
     }
 }
 
 const selectByNomeArtisticoDiretor = async (nome_artistico) => {
     try {
-        // Script SQL para buscar diretores pelo nome artístico, incluindo o nome da nacionalidade e do sexo
-        let sql = `SELECT 
-                        a.*, 
-                        n.nome AS nome_nacionalidade,
-                        s.nome AS nome_sexo
-                   FROM 
-                        tbl_diretor a
-                   LEFT JOIN 
-                        tbl_nacionalidade_diretor na ON a.id = na.id_diretor
-                   LEFT JOIN 
-                        tbl_nacionalidade n ON na.id_nacionalidade = n.id
-                   LEFT JOIN 
-                        tbl_sexo s ON a.id_sexo = s.id
-                   WHERE 
-                        a.nome_artistico LIKE '%${nome_artistico}%'`
-
-        // Executa o script SQL no DB e guarda o retorno dos dados
+        let sql = `select * from tbl_diretor where nome_artistico like '%${nome_artistico}%'`
+        
         let rsDiretores = await prisma.$queryRawUnsafe(sql)
 
         return rsDiretores
     } catch (error) {
-        console.error("Erro ao selecionar diretores pelo nome artístico:", error)
         return false
     }
 }

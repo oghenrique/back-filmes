@@ -89,6 +89,7 @@ const updateAtor = async (idAtor, dadosAtor) => {
                                                    id_sexo = '${dadosAtor.id_sexo}'
                     where id = ${idAtor}`
         }
+        
         let result = await prisma.$executeRawUnsafe(sql)
         
         if (result)
@@ -133,19 +134,20 @@ const selectByIdAtor = async (id) => {
 
 
 const deleteAtor = async (id) => {
+    const idAtor = id
+    
     try {
-        // Exclui o registro correspondente na tabela tbl_nacionalidade_ator
-        let sqlNacionalidade = `DELETE FROM tbl_nacionalidade_ator WHERE id_ator = ${id}`
-        await prisma.$executeRawUnsafe(sqlNacionalidade)
-
-        // Exclui o ator da tabela tbl_ator
-        let sqlAtor = `DELETE FROM tbl_ator WHERE id = ${id}`
-        await prisma.$executeRawUnsafe(sqlAtor)
-
-        return true // Retorna true para indicar que a exclusão foi bem-sucedida
+         let sql = `delete from tbl_ator where id = ${idAtor}`
+    
+         let result = await prisma.$executeRawUnsafe(sql)
+    
+         if (result) {
+             return true
+        } else {
+            return false
+         }
     } catch (error) {
-        console.error("Erro ao excluir ator:", error)
-        return false // Retorna false em caso de erro na exclusão
+        return false
     }
 }
 
@@ -154,83 +156,38 @@ const deleteAtor = async (id) => {
 
 const selectAllAtores = async () => {
     try {
-        // Script SQL para buscar todos os registros do database
-        let sql = `SELECT 
-                        a.*, 
-                        n.nome AS nome_nacionalidade,
-                        s.nome AS nome_sexo
-                   FROM 
-                        tbl_ator a
-                   LEFT JOIN 
-                        tbl_nacionalidade_ator na ON a.id = na.id_ator
-                   LEFT JOIN 
-                        tbl_nacionalidade n ON na.id_nacionalidade = n.id
-                   LEFT JOIN 
-                        tbl_sexo s ON a.id_sexo = s.id`
+        let sql = 'select * from tbl_ator'
 
-        // Executa o script SQL no DB e guarda o retorno dos dados
         let rsAtores = await prisma.$queryRawUnsafe(sql)
 
         return rsAtores
     } catch (error) {
-        console.error("Erro ao selecionar todos os atores:", error)
         return false
     }
 }
 
 
 const selectByNomeCompletoAtor = async (nome_completo) => {
-    try {
-        // Script SQL para buscar atores pelo nome completo, incluindo o nome da nacionalidade e do sexo
-        let sql = `SELECT 
-                        a.*, 
-                        n.nome AS nome_nacionalidade,
-                        s.nome AS nome_sexo
-                   FROM 
-                        tbl_ator a
-                   LEFT JOIN 
-                        tbl_nacionalidade_ator na ON a.id = na.id_ator
-                   LEFT JOIN 
-                        tbl_nacionalidade n ON na.id_nacionalidade = n.id
-                   LEFT JOIN 
-                        tbl_sexo s ON a.id_sexo = s.id
-                   WHERE 
-                        a.nome_completo LIKE '%${nome_completo}%'`
 
-        // Executa o script SQL no DB e guarda o retorno dos dados
+    try {
+        let sql = `select * from tbl_ator where nome_completo like '%${nome_completo}%'`
+        
         let rsAtores = await prisma.$queryRawUnsafe(sql)
 
         return rsAtores
     } catch (error) {
-        console.error("Erro ao selecionar atores pelo nome completo:", error)
         return false
     }
 }
 
 const selectByNomeArtisticoAtor = async (nome_artistico) => {
     try {
-        // Script SQL para buscar atores pelo nome artístico, incluindo o nome da nacionalidade e do sexo
-        let sql = `SELECT 
-                        a.*, 
-                        n.nome AS nome_nacionalidade,
-                        s.nome AS nome_sexo
-                   FROM 
-                        tbl_ator a
-                   LEFT JOIN 
-                        tbl_nacionalidade_ator na ON a.id = na.id_ator
-                   LEFT JOIN 
-                        tbl_nacionalidade n ON na.id_nacionalidade = n.id
-                   LEFT JOIN 
-                        tbl_sexo s ON a.id_sexo = s.id
-                   WHERE 
-                        a.nome_artistico LIKE '%${nome_artistico}%'`
-
-        // Executa o script SQL no DB e guarda o retorno dos dados
+        let sql = `select * from tbl_ator where nome_artistico like '%${nome_artistico}%'`
+        
         let rsAtores = await prisma.$queryRawUnsafe(sql)
 
         return rsAtores
     } catch (error) {
-        console.error("Erro ao selecionar atores pelo nome artístico:", error)
         return false
     }
 }

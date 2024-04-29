@@ -39,7 +39,7 @@ app.use((request, response, next) => {
 //Cria um objeto para definir o tipo de dados que irá chegar no BODY (JSON)
 const bodyParserJSON = bodyParser.json()
 
-/*************************** Import dos arquivos internos do projeto***********************/
+/****************************** Import dos arquivos internos do projeto**************************/
 
 const controllerFilmes = require('./controller/controller_filme.js')
 const controllerAtores = require('./controller/controller_ator.js')
@@ -47,9 +47,15 @@ const controllerDiretores = require('./controller/controller_diretor.js')
 const controllerGeneros = require('./controller/controller_genero.js')
 const controllerClassificacoes = require('./controller/controller_classificacao.js')
 const controllerNacionalidades = require('./controller/controller_nacionalidade.js')
+const controllerNacionalidadesAtores = require('./controller/controller_ator_nacionalidade.js')
+const controllerNacionalidadesDiretores = require('./controller/controller_diretor_nacionalidade.js')
+const controllerSexos = require('./controller/controller_sexo.js')
+const controllerFilmesAtores = require('./controller/controller_filme_ator.js')
+const controllerFilmesDiretores = require('./controller/controller_filme_diretor.js')
+const controllerFilmesGeneros = require('./controller/controller_filme_genero.js')
 const { filmes } = require('./model/filmes.js')
 
-/******************************************************************************************/
+/************************************************************************************************/
 
 //EndPoints: listar todos os filmes
 app.get('/v1/acme/filmes', cors(), async (request, response, next) => {
@@ -108,6 +114,27 @@ app.get('/v2/acmefilmes/filtro/filme', cors(), async (request, response, next) =
 
 })
 
+app.get('/v2/acmefilmes/filtro/classificacao', cors(), async (request, response, next) => {
+
+    let idClassificacao = request.query.idClassificacao
+    
+    let dadosFilme = await controllerFilmes.getBuscarPorClassificacao(idClassificacao)
+
+    response.status(dadosFilme.status_code)
+    response.json(dadosFilme)
+
+})
+
+app.get('/v2/acmefilmes/filtro/genero/:idGenero/filmes', cors(), async (request, response, next) => {
+    let idGenero = request.params.idGenero
+
+    let dadosFilmes = await controllerFilmesGeneros.getFilmesByGenero(idGenero)
+
+    response.status(dadosFilmes.status_code)
+    response.json(dadosFilmes)
+})
+
+
 //EndPoints: listar filmes filtrando pelo id
 app.get('/v2/acmefilmes/filme/:id', cors(), async (request, response, next) => {
   
@@ -119,7 +146,6 @@ app.get('/v2/acmefilmes/filme/:id', cors(), async (request, response, next) => {
     response.status(dadosFilme.status_code)
     response.json(dadosFilme)
 })
-
 
 app.post('/v2/acmefilmes/filme',  cors(), bodyParserJSON, async (request, response, next) =>{
 
@@ -605,8 +631,391 @@ app.put ('/v2/acmefilmes/nacionalidade/:id',  cors(), bodyParserJSON, async (req
 
 })
 
+// Nacionalidades Atores
+
+app.post('/v2/acmefilmes/nacionalidade/ator',  cors(), bodyParserJSON, async (request, response, next) =>{
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerNacionalidadesAtores.setInserirNovaNacionalidadeAtor(dadosBody, contentType)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
+
+app.get('/v2/acmefilmes/nacionalidades/atores', cors(), async (request, response, next) => {
+
+    //Chama a função para retornar os dados de FIlme
+    let dadosNacionalidadesAtores = await controllerNacionalidadesAtores.getListarNacionalidadesAtores()
+
+    //Validação para retornar os dados ou o erro 404
+    if (dadosNacionalidadesAtores) {
+        response.json(dadosNacionalidadesAtores)
+        response.status(200)
+    } else {
+        response.json({ message: 'Nenhum resgistro encontrado' })
+        response.status(404)
+    }
+
+})
+
+
+app.get('/v2/acmefilmes/nacionalidade/ator/:id', cors(), async (request, response, next) => {
+  
+    //Recebe o ID encaminhando a requisição
+    let idNacionalidadeAtor = request.params.id
+
+    let dadosNacionalidadeAtor = await controllerNacionalidadesAtores.getBuscarNacionalidadeAtor(idNacionalidadeAtor)
+
+    response.status(dadosNacionalidadeAtor.status_code)
+    response.json(dadosNacionalidadeAtor)
+})
+
+app.delete('/v2/acmefilmes/nacionalidade/ator/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+   
+    let idNacionalidadeAtor = request.params.id
+    let dadosNacionalidadeAtor = await controllerNacionalidadesAtores.setExcluirNacionalidadeAtor(idNacionalidadeAtor)
+
+    response.status(dadosNacionalidadeAtor.status_code)
+    response.json(dadosNacionalidadeAtor)
+})
+
+app.put ('/v2/acmefilmes/nacionalidade/ator/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+
+    let idNacionalidadeAtor = request.params.id
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerNacionalidadesAtores.setAtualizarNacionalidadeAtor(dadosBody, contentType, idNacionalidadeAtor)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
+// Nacionalidades Diretores
+
+app.post('/v2/acmefilmes/nacionalidade/diretor',  cors(), bodyParserJSON, async (request, response, next) =>{
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerNacionalidadesDiretores.setInserirNovaNacionalidadeDiretor(dadosBody, contentType)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
+
+app.get('/v2/acmefilmes/nacionalidades/diretores', cors(), async (request, response, next) => {
+
+    //Chama a função para retornar os dados de FIlme
+    let dadosNacionalidadesDiretores = await controllerNacionalidadesDiretores.getListarNacionalidadesDiretores()
+
+    //Validação para retornar os dados ou o erro 404
+    if (dadosNacionalidadesDiretores) {
+        response.json(dadosNacionalidadesDiretores)
+        response.status(200)
+    } else {
+        response.json({ message: 'Nenhum resgistro encontrado' })
+        response.status(404)
+    }
+
+})
+
+
+app.get('/v2/acmefilmes/nacionalidade/diretor/:id', cors(), async (request, response, next) => {
+  
+    //Recebe o ID encaminhando a requisição
+    let idNacionalidadeDiretor = request.params.id
+
+    let dadosNacionalidadeDiretor = await controllerNacionalidadesDiretores.getBuscarNacionalidadeDiretor(idNacionalidadeDiretor)
+
+    response.status(dadosNacionalidadeDiretor.status_code)
+    response.json(dadosNacionalidadeDiretor)
+})
+
+app.delete('/v2/acmefilmes/nacionalidade/diretor/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+   
+    let idNacionalidadeDiretor = request.params.id
+    let dadosNacionalidadeDiretor = await controllerNacionalidadesDiretores.setExcluirNacionalidadeDiretor(idNacionalidadeDiretor)
+
+    response.status(dadosNacionalidadeDiretor.status_code)
+    response.json(dadosNacionalidadeDiretor)
+})
+
+app.put ('/v2/acmefilmes/nacionalidade/diretor/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+
+    let idNacionalidadeDiretor = request.params.id
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerNacionalidadesDiretores.setAtualizarNacionalidadeDiretor(dadosBody, contentType, idNacionalidadeDiretor)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
+//Sexo
+
+app.get('/v2/acmefilmes/sexos', cors(), async (request, response, next) => {
+
+    let dadosSexos = await controllerSexos.getListarSexo()
+
+    if (dadosSexos) {
+        response.json(dadosSexos)
+        response.status(200)
+    } else {
+        response.json({ message: 'Nenhum resgistro encontrado' })
+        response.status(404)
+    }
+
+})
+
+
+app.get('/v2/acmefilmes/sexo/:id', cors(), async (request, response, next) => {
+  
+    //Recebe o ID encaminhando a requisição
+    let idSexo = request.params.id
+
+    let dadosSexo = await controllerSexos.getBuscarSexo(idSexo)
+
+    response.status(dadosSexo.status_code)
+    response.json(dadosSexo)
+})
+
+// Filme ator
+
+app.post('/v2/acmefilmes/filme/ator',  cors(), bodyParserJSON, async (request, response, next) =>{
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerFilmesAtores.setInserirNovoFilmeAtor(dadosBody, contentType)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
+app.get('/v2/acmefilmes/filmes/atores', cors(), async (request, response, next) => {
+
+    //Chama a função para retornar os dados de FIlme
+    let dadosFilmesAtores = await controllerFilmesAtores.getListarFilmesAtores()
+
+    //Validação para retornar os dados ou o erro 404
+    if (dadosFilmesAtores) {
+        response.json(dadosFilmesAtores)
+        response.status(200)
+    } else {
+        response.json({ message: 'Nenhum resgistro encontrado' })
+        response.status(404)
+    }
+
+})
+
+
+app.get('/v2/acmefilmes/filme/ator/:id', cors(), async (request, response, next) => {
+  
+    //Recebe o ID encaminhando a requisição
+    let idFilmeAtor = request.params.id                                                                                                                                                                                                                         //Gustavo Henrique
+
+    let dadosFilmeAtor = await controllerFilmesAtores.getBuscarFilmeAtor(idFilmeAtor)
+
+    response.status(dadosFilmeAtor.status_code)
+    response.json(dadosFilmeAtor)
+})
+
+app.delete('/v2/acmefilmes/filme/ator/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+   
+    let idFilmeAtor = request.params.id
+    let dadosFilmeAtor = await controllerFilmesAtores.setExcluirFilmeAtor(idFilmeAtor)
+
+    response.status(dadosFilmeAtor.status_code)
+    response.json(dadosFilmeAtor)
+})
+
+app.put ('/v2/acmefilmes/filme/ator/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+
+    let idFilmeAtor = request.params.id
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerFilmesAtores.setAtualizarFilmeAtor(dadosBody, contentType, idFilmeAtor)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
+// Filme diretor
+
+app.post('/v2/acmefilmes/filme/diretor',  cors(), bodyParserJSON, async (request, response, next) =>{
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerFilmesDiretores.setInserirNovoFilmeDiretor(dadosBody, contentType)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
+app.get('/v2/acmefilmes/filmes/diretores', cors(), async (request, response, next) => {
+
+    //Chama a função para retornar os dados de FIlme
+    let dadosFilmesDiretores = await controllerFilmesDiretores.getListarFilmesDiretores()
+
+    //Validação para retornar os dados ou o erro 404
+    if (dadosFilmesDiretores) {
+        response.json(dadosFilmesDiretores)
+        response.status(200)
+    } else {
+        response.json({ message: 'Nenhum resgistro encontrado' })
+        response.status(404)
+    }
+
+})
+
+
+app.get('/v2/acmefilmes/filme/diretor/:id', cors(), async (request, response, next) => {
+  
+    //Recebe o ID encaminhando a requisição
+    let idFilmeDiretor = request.params.id
+
+    let dadosFilmeDiretor = await controllerFilmesDiretores.getBuscarFilmeDiretor(idFilmeDiretor)
+
+    response.status(dadosFilmeDiretor.status_code)
+    response.json(dadosFilmeDiretor)
+})
+
+app.delete('/v2/acmefilmes/filme/diretor/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+   
+    let idFilmeDiretor = request.params.id
+    let dadosFilmeDiretor = await controllerFilmesDiretores.setExcluirFilmeDiretor(idFilmeDiretor)
+
+    response.status(dadosFilmeDiretor.status_code)
+    response.json(dadosFilmeDiretor)
+})
+
+app.put ('/v2/acmefilmes/filme/diretor/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+
+    let idFilmeDiretor = request.params.id
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    let resultDados = await controllerFilmesDiretores.setAtualizarFilmeDiretor(dadosBody, contentType, idFilmeDiretor)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
+// Filme genero
+
+app.post('/v2/acmefilmes/filme/genero',  cors(), bodyParserJSON, async (request, response, next) =>{
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerFilmesGeneros.setInserirNovoFilmeGenero(dadosBody, contentType)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
+app.get('/v2/acmefilmes/filmes/generos', cors(), async (request, response, next) => {
+
+    //Chama a função para retornar os dados de FIlme
+    let dadosFilmesGeneros = await controllerFilmesGeneros.getListarFilmesGeneros()
+
+    //Validação para retornar os dados ou o erro 404
+    if (dadosFilmesGeneros) {
+        response.json(dadosFilmesGeneros)
+        response.status(200)
+    } else {
+        response.json({ message: 'Nenhum resgistro encontrado' })
+        response.status(404)
+    }
+
+})
+
+
+app.get('/v2/acmefilmes/filme/genero/:id', cors(), async (request, response, next) => {
+  
+    //Recebe o ID encaminhando a requisição
+    let idFilmeGenero= request.params.id
+
+    let dadosFilmeGenero = await controllerFilmesGeneros.getBuscarFilmeGenero(idFilmeGenero)
+
+    response.status(dadosFilmeGenero.status_code)
+    response.json(dadosFilmeGenero)
+})
+
+app.delete('/v2/acmefilmes/filme/genero/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+   
+    let idFilmeGenero = request.params.id
+    let dadosFilmeGenero = await controllerFilmesGeneros.setExcluirFilmeGenero(idFilmeGenero)
+
+    response.status(dadosFilmeGenero.status_code)
+    response.json(dadosFilmeGenero)
+})
+
+app.put ('/v2/acmefilmes/filme/genero/:id',  cors(), bodyParserJSON, async (request, response, next) => {
+
+    let idFilmeGenero = request.params.id
+
+    let contentType = request.headers['content-type']
+
+    //Recebe os dados encaminhados no Body da requisição
+    let dadosBody = request.body
+
+    //Encaminha os dados para cotroller inserir no BD
+    let resultDados = await controllerFilmesGeneros.setAtualizarFilmeGenero(dadosBody, contentType, idFilmeGenero)
+
+    response.status(resultDados.status_code)
+    response.json(resultDados)
+
+})
+
 app.listen(8080, function () {
     console.log('servidor rodando na porta 8080')
 
 })
-

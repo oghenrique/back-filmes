@@ -201,6 +201,20 @@ const selectByNomeFilme = async (titulo) => {
     }
 }
 
+const selectByClassificacao = async (idClassificacao) => {
+    try {
+        let sql = `SELECT * FROM tbl_filme WHERE id_classificacao = ${idClassificacao}`
+        
+        let rsFilmes = await prisma.$queryRawUnsafe(sql)
+
+        return rsFilmes
+    } catch (error) {
+        return false
+    }
+}
+
+
+
 
 
 module.exports = {
@@ -210,5 +224,6 @@ module.exports = {
     deleteFilme,
     selectAllFilmes,
     selectByIdFilme,
-    selectByNomeFilme
+    selectByNomeFilme,
+    selectByClassificacao
 }
