@@ -127,7 +127,7 @@ const getListarGeneros = async () => {
     //Validação para criar o JSON de dados
     if (dadosGeneros) {
         if (dadosGeneros.length > 0) {
-            generosJSON.atores = dadosGeneros
+            generosJSON.generos = dadosGeneros
             generosJSON.quantidade = dadosGeneros.length
             generosJSON.status_code = 200
 
