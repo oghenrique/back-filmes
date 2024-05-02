@@ -171,22 +171,24 @@ app.delete('/v2/acmefilmes/filme/:id',  cors(), bodyParserJSON, async (request, 
     response.json(dadosFilme)
 })
 
-app.put ('/v2/acmefilmes/filme/:id',  cors(), bodyParserJSON, async (request, response, next) => {
-
+app.put('/v2/acmefilmes/filme/:id', cors(), bodyParserJSON, async (request, response, next) => {
     let idFilme = request.params.id
 
     let contentType = request.headers['content-type']
 
-    //Recebe os dados encaminhados no Body da requisição
+    // Recebe os dados encaminhados no Body da requisição
     let dadosBody = request.body
 
-    //Encaminha os dados para cotroller inserir no BD
+    console.log('Dados recebidos para atualização:', dadosBody);
+    console.log('ID do filme:', idFilme);
+
+    // Encaminha os dados para a controller inserir no BD
     let resultDados = await controllerFilmes.setAtualizarFilme(dadosBody, contentType, idFilme)
 
     response.status(resultDados.status_code)
     response.json(resultDados)
-
 })
+
 
 // ATORES
 
