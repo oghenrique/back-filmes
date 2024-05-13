@@ -179,8 +179,8 @@ app.put('/v2/acmefilmes/filme/:id', cors(), bodyParserJSON, async (request, resp
     // Recebe os dados encaminhados no Body da requisição
     let dadosBody = request.body
 
-    console.log('Dados recebidos para atualização:', dadosBody);
-    console.log('ID do filme:', idFilme);
+    console.log('Dados recebidos para atualização:', dadosBody)
+    console.log('ID do filme:', idFilme)
 
     // Encaminha os dados para a controller inserir no BD
     let resultDados = await controllerFilmes.setAtualizarFilme(dadosBody, contentType, idFilme)
@@ -516,21 +516,21 @@ app.get('/v2/acmefilmes/classificacao/:id', cors(), async (request, response, ne
 
 app.delete('/v2/acmefilmes/classificacao/:id',  cors(), bodyParserJSON, async (request, response, next) => {
     try {
-        let idClassificacao = request.params.id;
+        let idClassificacao = request.params.id
         
-        console.log("Recebida solicitação para excluir a classificação com ID:", idClassificacao);
+        console.log("Recebida solicitação para excluir a classificação com ID:", idClassificacao)
 
-        let dadosClassificacao = await controllerClassificacoes.setExcluirClassificacao(idClassificacao);
+        let dadosClassificacao = await controllerClassificacoes.setExcluirClassificacao(idClassificacao)
 
-        console.log("Resposta da exclusão da classificação:", dadosClassificacao);
+        console.log("Resposta da exclusão da classificação:", dadosClassificacao)
 
-        response.status(dadosClassificacao.status_code);
-        response.json(dadosClassificacao);
+        response.status(dadosClassificacao.status_code)
+        response.json(dadosClassificacao)
     } catch (error) {
-        console.log("Erro ao processar solicitação de exclusão de classificação:", error);
-        response.status(500).json({ error: "Internal server error" });
+        console.log("Erro ao processar solicitação de exclusão de classificação:", error)
+        response.status(500).json({ error: "Internal server error" })
     }
-});
+})
 
 
 app.put ('/v2/acmefilmes/classificacao/:id',  cors(), bodyParserJSON, async (request, response, next) => {

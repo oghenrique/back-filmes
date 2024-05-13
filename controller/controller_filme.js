@@ -17,6 +17,7 @@ const filmeDiretorDAO = require('../model/DAO/filme_diretor.js')
 const generoDAO = require('../model/DAO/genero.js')
 const filmeGeneroDAO = require('../model/DAO/filme_genero.js')
 const diretorDAO = require('../model/DAO/diretor.js')
+const controllerGeneros = require('../controller/controller_filme_genero.js')
 
 //Função para inserir um novo filme
 const setInserirNovoFilme = async (dadosFilme, contentType) => {
@@ -76,9 +77,6 @@ const setInserirNovoFilme = async (dadosFilme, contentType) => {
         return message.ERROR_INTERNAL_SERVER // 500 erro na camada da controller
     }
 }
-
-
-
 
 //Função para atualizar um filme existente
 const setAtualizarFilme = async (dadosFilme, contentType, id) => {
@@ -213,19 +211,23 @@ const getListarFilmes = async () => {
                             return diretor
                         }))
 
-                        let filmesGenero = await filmeGeneroDAO.selectByIdFilmeGenero(filme.id)
-                        if (filmesGenero) {
-                            filme.generos = await Promise.all(filmesGenero.map(async (filmeGenero) => {
-                                const genero = await generoDAO.selectByIdGenero(filmeGenero.id_genero)
+                        let generos = await filmeGeneroDAO.selectByIdFilmeGenero(filme.id)
+                        console.log("Gêneros retornados:", generos); // Console para depuração
+                        if (generos) {
+                            filme.generos = await Promise.all(generos.map(async (generoItem) => {
+                                const genero = await generoDAO.selectByIdGenero(generoItem.id_genero)
+                                console.log("Detalhes do Gênero:", genero); // Console para depuração
                                 return genero
                             }))
                         }
-                    }
 
+                    }
                 }
 
                 return filme
             }))
+
+            console.log("Filmes com classificação, atores, diretores e gêneros:", filmeComClassificacao); // Console para depuração
 
             filmesJSON.filmes = filmeComClassificacao
             filmesJSON.quantidade = filmeComClassificacao.length
@@ -239,6 +241,7 @@ const getListarFilmes = async () => {
         return message.ERROR_INTERNAL_SERVER_DB
     }
 }
+
 
 //Função para retornar filtro do filme pelo ID
 const getBuscarFilme = async (id) => {
@@ -259,26 +262,26 @@ const getBuscarFilme = async (id) => {
         if (dadosFilme) {
 
             if (dadosFilme.length > 0) {
-                
+
                 let filmeComClassificacao = await Promise.all(dadosFilme.map(async (filme) => {
                     let classificacaoFilme = await classificacaoDAO.selectByIdClassificacao(filme.id_classificacao)
                     delete filme.id_classificacao
                     filme.classificacao = classificacaoFilme
-    
+
                     let filmesAtor = await filmeAtorDAO.selectByIdFilmeAtor(filme.id)
                     if (filmesAtor) {
                         filme.atores = await Promise.all(filmesAtor.map(async (filmeAtor) => {
                             const ator = await atorDAO.selectByIdAtor(filmeAtor.id_ator)
                             return ator
                         }))
-    
+
                         let filmesDiretor = await filmeDiretorDAO.selectByIdFilmeDiretor(filme.id)
                         if (filmesDiretor) {
                             filme.diretores = await Promise.all(filmesDiretor.map(async (filmeDiretor) => {
                                 const diretor = await diretorDAO.selectByIdDiretor(filmeDiretor.id_diretor)
                                 return diretor
                             }))
-    
+
                             let filmesGenero = await filmeGeneroDAO.selectByIdFilmeGenero(filme.id)
                             if (filmesGenero) {
                                 filme.generos = await Promise.all(filmesGenero.map(async (filmeGenero) => {
@@ -287,9 +290,9 @@ const getBuscarFilme = async (id) => {
                                 }))
                             }
                         }
-    
+
                     }
-    
+
                     return filme
                 }))
 
@@ -327,21 +330,21 @@ const getBuscarNomeFilme = async (titulo) => {
                     let classificacaoFilme = await classificacaoDAO.selectByIdClassificacao(filme.id_classificacao)
                     delete filme.id_classificacao
                     filme.classificacao = classificacaoFilme
-    
+
                     let filmesAtor = await filmeAtorDAO.selectByIdFilmeAtor(filme.id)
                     if (filmesAtor) {
                         filme.atores = await Promise.all(filmesAtor.map(async (filmeAtor) => {
                             const ator = await atorDAO.selectByIdAtor(filmeAtor.id_ator)
                             return ator
                         }))
-    
+
                         let filmesDiretor = await filmeDiretorDAO.selectByIdFilmeDiretor(filme.id)
                         if (filmesDiretor) {
                             filme.diretores = await Promise.all(filmesDiretor.map(async (filmeDiretor) => {
                                 const diretor = await diretorDAO.selectByIdDiretor(filmeDiretor.id_diretor)
                                 return diretor
                             }))
-    
+
                             let filmesGenero = await filmeGeneroDAO.selectByIdFilmeGenero(filme.id)
                             if (filmesGenero) {
                                 filme.generos = await Promise.all(filmesGenero.map(async (filmeGenero) => {
@@ -350,9 +353,9 @@ const getBuscarNomeFilme = async (titulo) => {
                                 }))
                             }
                         }
-    
+
                     }
-    
+
                     return filme
                 }))
 
@@ -387,21 +390,21 @@ const getBuscarPorClassificacao = async (idClassificacao) => {
                     let classificacaoFilme = await classificacaoDAO.selectByIdClassificacao(filme.id_classificacao)
                     delete filme.id_classificacao
                     filme.classificacao = classificacaoFilme
-    
+
                     let filmesAtor = await filmeAtorDAO.selectByIdFilmeAtor(filme.id)
                     if (filmesAtor) {
                         filme.atores = await Promise.all(filmesAtor.map(async (filmeAtor) => {
                             const ator = await atorDAO.selectByIdAtor(filmeAtor.id_ator)
                             return ator
                         }))
-    
+
                         let filmesDiretor = await filmeDiretorDAO.selectByIdFilmeDiretor(filme.id)
                         if (filmesDiretor) {
                             filme.diretores = await Promise.all(filmesDiretor.map(async (filmeDiretor) => {
                                 const diretor = await diretorDAO.selectByIdDiretor(filmeDiretor.id_diretor)
                                 return diretor
                             }))
-    
+
                             let filmesGenero = await filmeGeneroDAO.selectByIdFilmeGenero(filme.id)
                             if (filmesGenero) {
                                 filme.generos = await Promise.all(filmesGenero.map(async (filmeGenero) => {
@@ -410,9 +413,9 @@ const getBuscarPorClassificacao = async (idClassificacao) => {
                                 }))
                             }
                         }
-    
+
                     }
-    
+
                     return filme
                 }))
 
