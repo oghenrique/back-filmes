@@ -73,11 +73,9 @@ const deleteFilmeGenero = async (id) => {
     }
 }
 
-const selectByIdFilmeGenero = async (id) => {
-
+const selectByIdFilmeGenero = async (idFilme) => {
     try {
-
-        let sql = `select * from tbl_filme_genero where id = ${id}`
+        let sql = `SELECT * FROM tbl_filme_genero WHERE id_filme = ${idFilme}`
         
         let rsFilmeGeneros = await prisma.$queryRawUnsafe(sql)
 
@@ -87,6 +85,7 @@ const selectByIdFilmeGenero = async (id) => {
         return false
     }
 }
+
 
 const selectAllFilmeGeneros = async () => {
 

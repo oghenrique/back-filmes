@@ -4,7 +4,7 @@ const { PrismaClient } = require('@prisma/client')
 // Instanciando a classe PrismaClient
 const prisma = new PrismaClient()
 
-// Função para inserir uma classificação no Banco de Dados
+// Função para inserir uma nacionalidade de diretor no Banco de Dados
 const insertNacionalidadeDiretor = async (dadosNacionalidadeDiretor) => {
     try {
         let sql = `insert into tbl_nacionalidade_diretor (
@@ -22,7 +22,7 @@ const insertNacionalidadeDiretor = async (dadosNacionalidadeDiretor) => {
     }
 }
 
-// Função para selecionar o último ID de classificação
+// Função para selecionar o último ID de nacionalidade de diretor
 const selectId = async () => {
     try {
         let sql = 'select CAST(id as DECIMAL) as id FROM tbl_nacionalidade_diretor order by id desc limit 1'
@@ -39,7 +39,7 @@ const selectId = async () => {
     }
 }
 
-// Função para atualizar uma classificação
+// Função para atualizar uma nacionalidade de diretor
 const updateNacionalidadeDiretor = async (idNacionalidadeDiretor, dadosNacionalidadeDiretor) => {
 
     let sql
@@ -58,7 +58,7 @@ const updateNacionalidadeDiretor = async (idNacionalidadeDiretor, dadosNacionali
     }
 }
 
-// Função para deletar uma classificação no Banco de Dados
+// Função para deletar uma nacionalidade de diretor no Banco de Dados
 const deleteNacionalidadeDiretor = async (id) => {
 
     try {
@@ -74,12 +74,10 @@ const deleteNacionalidadeDiretor = async (id) => {
     }
 }
 
-// Função para selecionar uma classificação pelo ID
-const selectByIdNacionalidadeDiretor = async (id) => {
-
+// Função para selecionar uma nacionalidade de diretor pelo ID
+const selectByIdNacionalidadeDiretor = async (idDiretor) => {
     try {
-
-        let sql = `select * from tbl_nacionalidade_diretor where id = ${id}`
+        let sql = `SELECT * FROM tbl_nacionalidade_diretor WHERE id_diretor = ${idDiretor}`
         
         let rsNacionalidadeDiretores = await prisma.$queryRawUnsafe(sql)
 
@@ -90,11 +88,9 @@ const selectByIdNacionalidadeDiretor = async (id) => {
     }
 }
 
-// Função para selecionar todas as classificações
+// Função para selecionar todas as nacionalidades de diretores
 const selectAllNacionalidadeDiretores = async () => {
-
     try {
-
         let sql = 'select * from tbl_nacionalidade_diretor'
         
         let rsNacionalidadeDiretores = await prisma.$queryRawUnsafe(sql)
@@ -105,7 +101,6 @@ const selectAllNacionalidadeDiretores = async () => {
         return false
     }
 }
-
 
 module.exports = {
     insertNacionalidadeDiretor,

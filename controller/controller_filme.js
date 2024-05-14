@@ -212,11 +212,9 @@ const getListarFilmes = async () => {
                         }))
 
                         let generos = await filmeGeneroDAO.selectByIdFilmeGenero(filme.id)
-                        console.log("Gêneros retornados:", generos); // Console para depuração
                         if (generos) {
                             filme.generos = await Promise.all(generos.map(async (generoItem) => {
                                 const genero = await generoDAO.selectByIdGenero(generoItem.id_genero)
-                                console.log("Detalhes do Gênero:", genero); // Console para depuração
                                 return genero
                             }))
                         }
@@ -226,8 +224,6 @@ const getListarFilmes = async () => {
 
                 return filme
             }))
-
-            console.log("Filmes com classificação, atores, diretores e gêneros:", filmeComClassificacao); // Console para depuração
 
             filmesJSON.filmes = filmeComClassificacao
             filmesJSON.quantidade = filmeComClassificacao.length

@@ -74,12 +74,9 @@ const deleteNacionalidadeAtor = async (id) => {
     }
 }
 
-// Função para selecionar uma classificação pelo ID
-const selectByIdNacionalidadeAtor = async (id) => {
-
+const selectByIdNacionalidadeAtor = async (idAtor) => {
     try {
-
-        let sql = `select * from tbl_nacionalidade_ator where id = ${id}`
+        let sql = `SELECT * FROM tbl_nacionalidade_ator WHERE id_ator = ${idAtor}`
         
         let rsNacionalidadeAtores = await prisma.$queryRawUnsafe(sql)
 

@@ -75,11 +75,11 @@ const deleteFilmeAtor = async (id) => {
 }
 
 // Função para selecionar uma classificação pelo ID
-const selectByIdFilmeAtor = async (id) => {
+const selectByIdFilmeAtor = async (idFilme) => {
 
     try {
 
-        let sql = `select * from tbl_filme_ator where id = ${id}`
+        let sql = `SELECT * FROM tbl_filme_diretor WHERE id_filme = ${idFilme}}`
         
         let rsFilmeAtores = await prisma.$queryRawUnsafe(sql)
 
