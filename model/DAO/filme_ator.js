@@ -79,7 +79,7 @@ const selectByIdFilmeAtor = async (idFilme) => {
 
     try {
 
-        let sql = `SELECT * FROM tbl_filme_diretor WHERE id_filme = ${idFilme}}`
+        let sql = `SELECT * FROM tbl_filme_ator WHERE id_filme = ${idFilme}`
         
         let rsFilmeAtores = await prisma.$queryRawUnsafe(sql)
 

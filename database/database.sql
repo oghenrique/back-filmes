@@ -160,4 +160,56 @@ create table tbl_nacionalidade_diretor (
   unique index (id)
 );
 
- SELECT * from tbl_genero
+-- Definindo um delimitador personalizado
+DELIMITER $
+
+-- Criando o trigger para exclusão de ator
+CREATE TRIGGER tgr_del_ator
+    BEFORE DELETE ON tbl_ator
+    FOR EACH ROW
+BEGIN
+    -- Remover nacionalidade do ator
+    DELETE FROM tbl_nacionalidade_ator WHERE id_ator = old.id;
+
+    -- Remover associações do ator em filmes
+    DELETE FROM tbl_filme_ator WHERE id_ator = old.id;
+END $
+
+-- Criando o trigger para exclusão de diretor
+CREATE TRIGGER tgr_del_diretor
+    BEFORE DELETE ON tbl_diretor
+    FOR EACH ROW
+BEGIN
+    -- Remover nacionalidade do diretor
+    DELETE FROM tbl_nacionalidade_diretor WHERE id_diretor = old.id;
+
+    -- Remover associações do diretor em filmes
+    DELETE FROM tbl_filme_diretor WHERE id_diretor = old.id;
+END $
+
+-- Criando o trigger para exclusão de gênero de filme
+CREATE TRIGGER tgr_del_genero
+    BEFORE DELETE ON tbl_genero
+    FOR EACH ROW
+BEGIN
+    -- Remover associações do gênero em filmes
+    DELETE FROM tbl_filme_genero WHERE id_genero = old.id;
+END $
+
+-- Criando o trigger para exclusão de filme
+CREATE TRIGGER tgr_del_filme
+    BEFORE DELETE ON tbl_filme
+    FOR EACH ROW
+BEGIN
+    -- Remover diretores associados ao filme
+    DELETE FROM tbl_filme_diretor WHERE id_filme = old.id;
+
+    -- Remover gêneros associados ao filme
+    DELETE FROM tbl_filme_genero WHERE id_filme = old.id;
+
+    -- Remover atores associados ao filme
+    DELETE FROM tbl_filme_ator WHERE id_filme = old.id;
+END $
+
+-- Restaurando o delimitador padrão
+DELIMITER ;

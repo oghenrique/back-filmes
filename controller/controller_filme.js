@@ -193,37 +193,41 @@ const getListarFilmes = async () => {
         if (dadosFilmes.length > 0) {
 
             let filmeComClassificacao = await Promise.all(dadosFilmes.map(async (filme) => {
+                // Obter classificação do filme
                 let classificacaoFilme = await classificacaoDAO.selectByIdClassificacao(filme.id_classificacao)
                 delete filme.id_classificacao
                 filme.classificacao = classificacaoFilme
+                        
+                // Obter diretores do filme
+                let filmesDiretor = await filmeDiretorDAO.selectByIdFilmeDiretor(filme.id)
+                if (filmesDiretor) {
+                    filme.diretores = await Promise.all(filmesDiretor.map(async (filmeDiretor) => {
+                        const diretor = await diretorDAO.selectByIdDiretor(filmeDiretor.id_diretor)
+                        return diretor
+                    }))
+                }
 
+                // Obter atores do filme
                 let filmesAtor = await filmeAtorDAO.selectByIdFilmeAtor(filme.id)
                 if (filmesAtor) {
                     filme.atores = await Promise.all(filmesAtor.map(async (filmeAtor) => {
                         const ator = await atorDAO.selectByIdAtor(filmeAtor.id_ator)
                         return ator
                     }))
-
-                    let filmesDiretor = await filmeDiretorDAO.selectByIdFilmeDiretor(filme.id)
-                    if (filmesDiretor) {
-                        filme.diretores = await Promise.all(filmesDiretor.map(async (filmeDiretor) => {
-                            const diretor = await diretorDAO.selectByIdDiretor(filmeDiretor.id_diretor)
-                            return diretor
-                        }))
-
-                        let generos = await filmeGeneroDAO.selectByIdFilmeGenero(filme.id)
-                        if (generos) {
-                            filme.generos = await Promise.all(generos.map(async (generoItem) => {
-                                const genero = await generoDAO.selectByIdGenero(generoItem.id_genero)
-                                return genero
-                            }))
-                        }
-
-                    }
                 }
-
+            
+                // Obter gêneros do filme
+                let generos = await filmeGeneroDAO.selectByIdFilmeGenero(filme.id)
+                if (generos) {
+                    filme.generos = await Promise.all(generos.map(async (generoItem) => {
+                        const genero = await generoDAO.selectByIdGenero(generoItem.id_genero)
+                        return genero
+                    }))
+                }
+            
                 return filme
             }))
+            
 
             filmesJSON.filmes = filmeComClassificacao
             filmesJSON.quantidade = filmeComClassificacao.length

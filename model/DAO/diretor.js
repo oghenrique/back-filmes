@@ -131,10 +131,10 @@ const selectId = async () => {
     }
 }
 
-const selectByIdDiretor = async (id) => {
+const selectByIdDiretor = async (idDiretor) => {
 
     try {
-        let sql = `select * from tbl_diretor where id=${id}`
+        let sql = `select * from tbl_diretor where id=${idDiretor}`
 
         let rsDiretores = await prisma.$queryRawUnsafe(sql)
 
